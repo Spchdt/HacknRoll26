@@ -76,7 +76,7 @@ export default function GameEndModal({
               Optimal Solution ({reward.optimalSolution.length} commands)
             </h3>
             <div className="bg-gray-900 text-green-400 p-3 rounded-lg font-mono text-xs max-h-32 overflow-y-auto">
-              {reward.optimalSolution.map((cmd: GameCommand, i: number) => (
+              {reward.optimalSolution.map((cmd: any, i: number) => (
                 <div key={i}>
                   $ git {cmd.type} {cmd.args.join(' ')}
                 </div>

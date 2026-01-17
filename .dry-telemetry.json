@@ -9876,5 +9876,18 @@
       "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
       "changedLines": []
     }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:18:21.473Z",
+    "data": {
+      "id": "1768652301473",
+      "timestamp": "2026-01-17T12:18:21.473Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/GameEndModal.tsx",
+      "changedLines": [
+        1
+      ]
+    }
   }
 ]
