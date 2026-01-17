@@ -9889,5 +9889,18 @@
         1
       ]
     }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:19:16.675Z",
+    "data": {
+      "id": "1768652356675",
+      "timestamp": "2026-01-17T12:19:16.675Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/GameEndModal.tsx",
+      "changedLines": [
+        78
+      ]
+    }
   }
 ]
