@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { useDarkMode } from '@/layouts/MainLayout';
 
 interface CommandHistoryProps {
   commands: string[];
@@ -14,7 +13,6 @@ export default function CommandHistory({
   className,
 }: CommandHistoryProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { isDarkMode } = useDarkMode();
 
   // Auto-scroll to bottom when output changes
   useEffect(() => {

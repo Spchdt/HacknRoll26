@@ -87,26 +87,7 @@ const HELP_SECTIONS: HelpSection[] = [
     id: 'collecting',
     title: 'Collecting Files',
     icon: <Target size={20} />,
-    content: (
-      <div className="space-y-3">
-        <p>
-          Files are placed at specific positions defined by a <strong>branch</strong> and 
-          <strong> depth</strong> (number of commits from the initial commit).
-        </p>
-        <p>
-          When you create a commit at the exact position where a file is located, you 
-          automatically collect that file.
-        </p>
-        <div className="bg-gray-50 p-3 rounded-lg text-sm font-mono">
-          <p>File: README.md @ main, depth 2</p>
-          <p className="text-gray-500">→ Commit twice on main branch to collect</p>
-        </div>
-        <p>
-          The file tracker on the right shows all files and their locations. Collected 
-          files are marked with a checkmark.
-        </p>
-      </div>
-    ),
+    content: null, // Will be handled specially
   },
   {
     id: 'winning',
@@ -228,11 +209,13 @@ export default function HelpPage() {
               </h2>
               <div className="prose prose-sm max-w-none">
                 {section.id === 'winning' ? (
-                  <WinningContent onNavigateToCollecting={() => setActiveSection('collecting')} />
+                  <WinningContent isDarkMode={isDarkMode} onNavigateToCollecting={() => setActiveSection('collecting')} />
+                ) : section.id === 'collecting' ? (
+                  <CollectingFilesContent isDarkMode={isDarkMode} />
                 ) : (
                   section.content
                 )}
-              </div>
+            </div>
             </div>
           ))}
         </div>
@@ -286,7 +269,7 @@ interface CommandHelpProps {
   example: string;
 }
 
-function WinningContent({ onNavigateToCollecting }: { onNavigateToCollecting: () => void }) {
+function WinningContent({ isDarkMode, onNavigateToCollecting }: { isDarkMode: boolean; onNavigateToCollecting: () => void }) {
   return (
     <div className="space-y-3">
       <p>
@@ -296,7 +279,7 @@ function WinningContent({ onNavigateToCollecting }: { onNavigateToCollecting: ()
         <li>
           <button
             onClick={onNavigateToCollecting}
-            className="text-black hover:underline font-medium"
+            className={cn('hover:underline font-medium', isDarkMode ? 'text-blue-400' : 'text-black')}
           >
             Collect all target files
           </button>
@@ -307,9 +290,9 @@ function WinningContent({ onNavigateToCollecting }: { onNavigateToCollecting: ()
         Your score is based on how many commands you used compared to the <strong>par score</strong> 
         (the minimum commands needed according to the solver).
       </p>
-      <div className="bg-gray-50 p-3 rounded-lg">
+      <div className={cn('p-3 rounded-lg', isDarkMode ? 'bg-gray-700' : 'bg-gray-50')}>
         <p className="font-bold">Scoring:</p>
-        <ul className="text-sm space-y-1 mt-2">
+        <ul className={cn('text-sm space-y-1 mt-2', isDarkMode ? 'text-gray-200' : '')}>
           <li>• Base score: 100 points</li>
           <li>• Under par: +20 points per command saved</li>
           <li>• Over par: -10 points per extra command (min 10 points)</li>
@@ -319,12 +302,36 @@ function WinningContent({ onNavigateToCollecting }: { onNavigateToCollecting: ()
   );
 }
 
-function CommandHelp({ command, description, example }: CommandHelpProps) {
+function CollectingFilesContent({ isDarkMode }: { isDarkMode: boolean }) {
   return (
-    <div className="border-l-2 border-gray-200 pl-3">
+    <div className="space-y-3">
+      <p>
+        Files are placed at specific positions defined by a <strong>branch</strong> and 
+        <strong> depth</strong> (number of commits from the initial commit).
+      </p>
+      <p>
+        When you create a commit at the exact position where a file is located, you 
+        automatically collect that file.
+      </p>
+      <div className={cn('p-3 rounded-lg text-sm font-mono', isDarkMode ? 'bg-gray-700' : 'bg-gray-50')}>
+        <p>File: README.md @ main, depth 2</p>
+        <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>→ Commit twice on main branch to collect</p>
+      </div>
+      <p>
+        The file tracker on the right shows all files and their locations. Collected 
+        files are marked with a checkmark.
+      </p>
+    </div>
+  );
+}
+
+function CommandHelp({ command, description, example }: CommandHelpProps) {
+  const { isDarkMode } = useDarkMode();
+  return (
+    <div className={cn('border-l-2 pl-3', isDarkMode ? 'border-gray-600' : 'border-gray-200')}>
       <p className="font-mono font-bold text-sm">{command}</p>
-      <p className="text-sm text-gray-600 mt-1">{description}</p>
-      <p className="text-xs font-mono text-gray-400 mt-1">Example: {example}</p>
+      <p className={cn('text-sm mt-1', isDarkMode ? 'text-gray-300' : 'text-gray-600')}>{description}</p>
+      <p className={cn('text-xs font-mono mt-1', isDarkMode ? 'text-gray-500' : 'text-gray-400')}>Example: {example}</p>
     </div>
   );
 }
