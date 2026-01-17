@@ -158,7 +158,7 @@ export function GitCommandsPage() {
             className="filter-checkbox"
           />
           <span className="flex items-center gap-2">
-            {showUnsupported ? 'Showing all commands' : 'Supported commands'}
+            {showUnsupported ? 'Supported commands' : 'Showing all commands'}
           </span>
         </label>
         <span className="commands-count">

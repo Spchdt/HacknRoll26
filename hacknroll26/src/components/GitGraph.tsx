@@ -24,10 +24,10 @@ const BRANCH_COLORS = [
 
 const NODE_RADIUS = 8;
 const NODE_RADIUS_HEAD = 10;
-const CELL_WIDTH = 70;
-const CELL_HEIGHT = 50;
-const PADDING_X = 60;
-const PADDING_Y = 40;
+const CELL_WIDTH = 100;
+const CELL_HEIGHT = 70;
+const PADDING_X = 80;
+const PADDING_Y = 60;
 
 export function GitGraphView({ graph, fileTargets, branches, maxDepth }: GitGraphViewProps) {
   const [scale, setScale] = useState(1);
@@ -212,7 +212,7 @@ export function GitGraphView({ graph, fileTargets, branches, maxDepth }: GitGrap
   };
 
   return (
-    <div ref={containerRef} className="git-graph-container horizontal" style={{ transform: `scale(${scale})`, transformOrigin: '0 0', transition: 'transform 0.1s' }}>
+    <div ref={containerRef} className="git-graph-container horizontal" style={{ transform: `scale(${scale})`, transformOrigin: 'center', transition: 'transform 0.15s ease-out', willChange: 'transform' }}>
       <svg
         className="git-graph-svg"
         width={svgWidth}
@@ -222,7 +222,7 @@ export function GitGraphView({ graph, fileTargets, branches, maxDepth }: GitGrap
         {/* Grid background */}
         <defs>
           <pattern id="grid" width={CELL_WIDTH} height={CELL_HEIGHT} patternUnits="userSpaceOnUse">
-            <path d={`M ${CELL_WIDTH} 0 L 0 0 0 ${CELL_HEIGHT}`} fill="none" stroke="#e5e7eb" strokeWidth="1" />
+            <path d={`M ${CELL_WIDTH} 0 L 0 0 0 ${CELL_HEIGHT}`} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
           </pattern>
         </defs>
         
