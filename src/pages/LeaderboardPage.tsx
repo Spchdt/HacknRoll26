@@ -3,8 +3,10 @@ import { Trophy, Medal, Award, ChevronUp, ChevronDown, AlertCircle, RefreshCw } 
 import type { LeaderboardEntry } from '@/lib/types';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from '@/layouts/MainLayout';
 
 export default function LeaderboardPage() {
+  const { isDarkMode } = useDarkMode();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
   const [, setUserEntry] = useState<LeaderboardEntry | null>(null);
@@ -70,7 +72,7 @@ export default function LeaderboardPage() {
         <h1 className="text-2xl font-bold">Leaderboard</h1>
         <div className="animate-pulse space-y-2">
           {Array.from({ length: 10 }).map((_, i) => (
-            <div key={i} className="h-12 bg-gray-100 rounded-lg" />
+            <div key={i} className={cn('h-12 rounded-lg', isDarkMode ? 'bg-gray-700' : 'bg-gray-100')} />
           ))}
         </div>
       </div>
@@ -81,10 +83,10 @@ export default function LeaderboardPage() {
     return (
       <div className="space-y-4">
         <h1 className="text-2xl font-bold">Leaderboard</h1>
-        <div className="text-center py-12 bg-red-50 border border-red-200 rounded-lg">
-          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
-          <p className="text-red-600 font-medium mb-2">Failed to load leaderboard</p>
-          <p className="text-red-500 text-sm mb-4">{error}</p>
+        <div className={cn('text-center py-12 border rounded-lg', isDarkMode ? 'bg-red-900/30 border-red-700' : 'bg-red-50 border-red-200')}>
+          <AlertCircle className={cn('w-12 h-12 mx-auto mb-4', isDarkMode ? 'text-red-400' : 'text-red-500')} />
+          <p className={cn('font-medium mb-2', isDarkMode ? 'text-red-400' : 'text-red-600')}>Failed to load leaderboard</p>
+          <p className={cn('text-sm mb-4', isDarkMode ? 'text-red-300' : 'text-red-500')}>{error}</p>
           <button
             onClick={loadLeaderboard}
             className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -102,20 +104,20 @@ export default function LeaderboardPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Leaderboard</h1>
         {userRank && userRank > 50 && (
-          <div className="text-sm bg-gray-100 px-3 py-1 rounded-full">
+          <div className={cn('text-sm px-3 py-1 rounded-full', isDarkMode ? 'bg-gray-700' : 'bg-gray-100')}>
             Your rank: <span className="font-bold">#{userRank}</span>
           </div>
         )}
       </div>
 
-      <div className="bg-white border rounded-lg overflow-hidden">
+      <div className={cn('border rounded-lg overflow-hidden', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200')}>
         <table className="w-full text-left">
-          <thead className="bg-gray-50 border-b">
+          <thead className={cn('border-b', isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200')}>
             <tr>
               <th className="p-3 font-semibold w-16">Rank</th>
               <th className="p-3 font-semibold">Player</th>
               <th 
-                className="p-3 font-semibold cursor-pointer hover:bg-gray-100"
+                className={cn('p-3 font-semibold cursor-pointer', isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100')}
                 onClick={() => handleSort('score')}
               >
                 <div className="flex items-center gap-1">
@@ -126,7 +128,7 @@ export default function LeaderboardPage() {
                 </div>
               </th>
               <th 
-                className="p-3 font-semibold cursor-pointer hover:bg-gray-100 hidden sm:table-cell"
+                className={cn('p-3 font-semibold cursor-pointer hidden sm:table-cell', isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-100')}
                 onClick={() => handleSort('gamesPlayed')}
               >
                 <div className="flex items-center gap-1">
@@ -143,8 +145,9 @@ export default function LeaderboardPage() {
               <tr 
                 key={`${entry.rank}-${entry.username}-${index}`} 
                 className={cn(
-                  'border-t hover:bg-gray-50 transition-colors',
-                  entry.rank <= 3 && 'bg-amber-50/50'
+                  'border-t transition-colors',
+                  isDarkMode ? 'border-gray-700 hover:bg-gray-700' : 'border-gray-200 hover:bg-gray-50',
+                  entry.rank <= 3 && (isDarkMode ? 'bg-amber-900/30' : 'bg-amber-50/50')
                 )}
               >
                 <td className="p-3">
@@ -164,7 +167,7 @@ export default function LeaderboardPage() {
                 <td className="p-3">
                   <span className="font-mono font-bold">{entry.score.toLocaleString()}</span>
                 </td>
-                <td className="p-3 hidden sm:table-cell text-gray-500">
+                <td className={cn('p-3 hidden sm:table-cell', isDarkMode ? 'text-gray-400' : 'text-gray-500')}>
                   {entry.gamesPlayed}
                 </td>
               </tr>
@@ -174,7 +177,7 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Bottom info */}
-      <p className="text-sm text-gray-500 text-center">
+      <p className={cn('text-sm text-center', isDarkMode ? 'text-gray-400' : 'text-gray-500')}>
         Showing top 50 players. Leaderboard updates daily at midnight UTC.
       </p>
     </div>

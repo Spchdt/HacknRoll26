@@ -3,6 +3,7 @@ import { RefreshCw, HelpCircle } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useApiGame } from '@/hooks/useApiGame';
 import { useAuth } from '@/hooks/useAuth';
+import { useDarkMode } from '@/layouts/MainLayout';
 import {
   GitGraph,
   GitGraphSkeleton,
@@ -17,6 +18,7 @@ import { cn, hasSeenTutorial, markTutorialSeen } from '@/lib/utils';
 export default function GamePage() {
   const [searchParams] = useSearchParams();
   const { setUsername: setUsernameApi } = useAuth();
+  const { isDarkMode } = useDarkMode();
   
   const {
     gameState,
@@ -195,13 +197,13 @@ Play at: [your-url]`;
               className="h-full"
             />
           ) : (
-            <div className="h-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center p-8">
+            <div className={cn('h-full border-2 border-dashed rounded-lg flex flex-col items-center justify-center p-8', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-300')}>
               <div className="text-center">
-                <p className="text-gray-600 text-lg mb-2">
+                <p className={cn('text-lg mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-600')}>
                   🎮 Welcome to Gitty!
                 </p>
-                <p className="text-gray-500 mb-4">
-                  Type <code className="bg-gray-200 px-2 py-1 rounded font-mono">git init</code> in the terminal below to start the daily puzzle
+                <p className={cn('mb-4', isDarkMode ? 'text-gray-400' : 'text-gray-500')}>
+                  Type <code className={cn('px-2 py-1 rounded font-mono', isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-800')}>git init</code> in the terminal below to start the daily puzzle
                 </p>
               </div>
             </div>

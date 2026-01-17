@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from '@/layouts/MainLayout';
 import { COMMAND_ALIASES } from '@/lib/types';
 
 interface CommandInputProps {
@@ -25,6 +26,7 @@ export default function CommandInput({
   history = [],
   className,
 }: CommandInputProps) {
+  const { isDarkMode } = useDarkMode();
   const [command, setCommand] = useState('');
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -95,12 +97,12 @@ export default function CommandInput({
     <div className={cn('relative', className)}>
       {/* Suggestions dropdown */}
       {showSuggestions && filteredSuggestions.length > 0 && (
-        <div className="absolute bottom-full left-0 right-0 mb-1 bg-white border rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+        <div className={cn('absolute bottom-full left-0 right-0 mb-1 border rounded-md shadow-lg z-10 max-h-40 overflow-y-auto', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300')}>
           {filteredSuggestions.map((suggestion, index) => (
             <button
               key={index}
               type="button"
-              className="w-full px-3 py-2 text-left text-sm font-mono hover:bg-gray-100 focus:bg-gray-100"
+              className={cn('w-full px-3 py-2 text-left text-sm font-mono', isDarkMode ? 'hover:bg-gray-700 focus:bg-gray-700 text-gray-200' : 'hover:bg-gray-100 focus:bg-gray-100 text-gray-800')}
               onClick={() => {
                 setCommand(suggestion);
                 setShowSuggestions(false);
@@ -115,7 +117,7 @@ export default function CommandInput({
 
       <form onSubmit={handleSubmit} className="flex gap-2">
         <div className="flex-1 relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 font-mono text-gray-500">
+          <span className={cn('absolute left-3 top-1/2 -translate-y-1/2 font-mono', isDarkMode ? 'text-gray-400' : 'text-gray-500')}>
             $
           </span>
           <input
@@ -132,9 +134,12 @@ export default function CommandInput({
             onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
             disabled={disabled}
             className={cn(
-              'w-full pl-7 pr-4 py-2 border border-gray-300 rounded-md font-mono text-sm',
-              'focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent',
-              'disabled:bg-gray-100 disabled:cursor-not-allowed'
+              'w-full pl-7 pr-4 py-2 border rounded-md font-mono text-sm',
+              'focus:outline-none focus:ring-2 focus:border-transparent',
+              isDarkMode
+                ? 'bg-gray-700 border-gray-600 text-white focus:ring-gray-500'
+                : 'bg-white border-gray-300 text-black focus:ring-black',
+              'disabled:opacity-50 disabled:cursor-not-allowed'
             )}
             placeholder="git commit -m 'Initial commit'"
             autoComplete="off"
@@ -143,7 +148,7 @@ export default function CommandInput({
 
           {/* History navigation hint */}
           {history.length > 0 && (
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col text-gray-400">
+            <div className={cn('absolute right-2 top-1/2 -translate-y-1/2 flex flex-col', isDarkMode ? 'text-gray-500' : 'text-gray-400')}>
               <ChevronUp size={12} />
               <ChevronDown size={12} />
             </div>
@@ -154,8 +159,11 @@ export default function CommandInput({
           type="submit"
           disabled={disabled || !command.trim()}
           className={cn(
-            'bg-black text-white p-2 rounded-md transition-colors',
-            'hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed'
+            'text-white p-2 rounded-md transition-colors',
+            isDarkMode
+              ? 'bg-gray-600 hover:bg-gray-500 disabled:bg-gray-700'
+              : 'bg-black hover:bg-gray-800 disabled:bg-gray-300',
+            'disabled:cursor-not-allowed'
           )}
         >
           <Send size={20} />
@@ -180,8 +188,11 @@ export default function CommandInput({
             }}
             disabled={disabled}
             className={cn(
-              'px-2 py-1 text-xs font-mono rounded border border-gray-300',
-              'hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed'
+              'px-2 py-1 text-xs font-mono rounded border',
+              isDarkMode
+                ? 'border-gray-600 bg-gray-700 text-gray-200 hover:bg-gray-600'
+                : 'border-gray-300 bg-white text-gray-800 hover:bg-gray-100',
+              'disabled:opacity-50 disabled:cursor-not-allowed'
             )}
           >
             {cmd}

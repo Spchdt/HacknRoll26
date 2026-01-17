@@ -8,9 +8,12 @@ import {
   Terminal,
   Target,
   Trophy,
-  HelpCircle
+  HelpCircle,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useDarkMode } from '@/layouts/MainLayout';
 
 interface HelpSection {
   id: string;
@@ -159,10 +162,25 @@ const HELP_SECTIONS: HelpSection[] = [
 
 export default function HelpPage() {
   const [activeSection, setActiveSection] = useState<string>('overview');
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">How to Play</h1>
+    <div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">How to Play</h1>
+        <button
+          onClick={toggleDarkMode}
+          className={cn(
+            'p-2 rounded-lg transition-colors',
+            isDarkMode
+              ? 'bg-gray-800 hover:bg-gray-700 text-yellow-400'
+              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+          )}
+          title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+      </div>
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Navigation */}
@@ -175,7 +193,11 @@ export default function HelpPage() {
                 className={cn(
                   'w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 transition-colors',
                   activeSection === section.id
-                    ? 'bg-black text-white'
+                    ? isDarkMode
+                      ? 'bg-white text-black'
+                      : 'bg-black text-white'
+                    : isDarkMode
+                    ? 'hover:bg-gray-800 text-gray-200'
                     : 'hover:bg-gray-100'
                 )}
               >
@@ -187,7 +209,12 @@ export default function HelpPage() {
         </div>
 
         {/* Content */}
-        <div className="flex-1 bg-white border rounded-lg p-6">
+        <div className={cn(
+          'flex-1 border rounded-lg p-6',
+          isDarkMode
+            ? 'bg-gray-800 border-gray-700'
+            : 'bg-white border-gray-200'
+        )}>
           {HELP_SECTIONS.map((section) => (
             <div
               key={section.id}
@@ -212,9 +239,17 @@ export default function HelpPage() {
       </div>
 
       {/* Quick reference */}
-      <div className="bg-gray-50 rounded-lg p-4">
+      <div className={cn(
+        'rounded-lg p-4 mt-8',
+        isDarkMode
+          ? 'bg-gray-800 border border-gray-700'
+          : 'bg-gray-50'
+      )}>
         <h3 className="font-bold mb-3">Quick Command Reference</h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm font-mono">
+        <div className={cn(
+          'grid grid-cols-2 md:grid-cols-3 gap-2 text-sm font-mono',
+          isDarkMode ? 'text-gray-300' : ''
+        )}>
           <div className="flex items-center gap-2">
             <GitCommit size={14} className="text-gray-400" />
             <span>git commit -m ""</span>
