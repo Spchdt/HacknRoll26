@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-git-graph-bg: #f0f0f0;
+  --font-sans: 'Space Mono', monospace;
+}
+
+:root {
+  --background: 255 255 255;
+  --foreground: 15 23 42;
+}
+
+body {
+  color: rgb(var(--foreground));
+  background: rgb(var(--background));
+  font-family: 'Space Mono', monospace;
+}
+
+/* Terminal simulator uses Roboto Mono */
+.font-mono {
+  font-family: 'Roboto Mono', monospace !important;
+}
