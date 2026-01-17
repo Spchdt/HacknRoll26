@@ -3,17 +3,18 @@ import { NavLink, Outlet } from 'react-router-dom';
 
 const Navbar = () => {
     return (
-        <nav className="border-t border-gray-200 bg-white fixed bottom-0 w-full md:top-0 md:bottom-auto md:border-b md:border-t-0 z-10">
-            <div className="max-w-4xl mx-auto flex justify-around items-center p-4">
-                {/* Logo - visible on desktop, left side */}
-                <div className="hidden md:flex md:absolute md:left-4 items-center">
-                    <img src="/logo.svg" alt="Gitty" className="h-18 w-25" />
-                </div>
-                
-                <NavLink to="/" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-black font-bold' : 'text-gray-500'}`}>
-                    <Terminal size={24} />
-                    <span className="text-xs">Game</span>
-                </NavLink>
+        <>
+            {/* Logo - always visible in top left corner */}
+            <div className="fixed top-2 left-2 z-20">
+                <img src="/logo.svg" alt="Gitty" className="h-14 w-20 md:h-14 md:w-25" />
+            </div>
+            
+            <nav className="border-t border-gray-200 bg-white fixed bottom-0 w-full md:top-0 md:bottom-auto md:border-b md:border-t-0 z-10">
+                <div className="max-w-4xl mx-auto flex justify-center gap-4 md:gap-8 lg:gap-12 items-center p-4">
+                    <NavLink to="/" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-black font-bold' : 'text-gray-500'}`}>
+                        <Terminal size={24} />
+                        <span className="text-xs">Game</span>
+                    </NavLink>
                 <NavLink to="/leaderboard" className={({ isActive }) => `flex flex-col items-center gap-1 ${isActive ? 'text-black font-bold' : 'text-gray-500'}`}>
                     <Trophy size={24} />
                     <span className="text-xs">Leaderboard</span>
@@ -32,6 +33,7 @@ const Navbar = () => {
                 </NavLink>
             </div>
         </nav>
+        </>
     );
 };
 

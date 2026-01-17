@@ -5,7 +5,7 @@ import type {
   FileTarget,
   CommandResult,
   GameCommand,
-  Puzzle,
+  LocalPuzzle,
   PuzzleConstraints,
 } from './types';
 import { generateCommitHash, getBranchColor, deepClone, cloneGitGraph } from './utils';
@@ -18,7 +18,7 @@ export class GitEngine {
   private files: FileTarget[];
   private constraints: PuzzleConstraints;
 
-  constructor(puzzle: Puzzle) {
+  constructor(puzzle: LocalPuzzle) {
     this.graph = cloneGitGraph(puzzle.initialGraph);
     this.files = deepClone(puzzle.files);
     this.constraints = puzzle.constraints;
@@ -448,7 +448,7 @@ export class GitEngine {
 /**
  * Create an initial puzzle graph for testing
  */
-export function createTestPuzzle(): Puzzle {
+export function createTestPuzzle(): LocalPuzzle {
   const initialCommitId = generateCommitHash();
   
   const commits = new Map<string, Commit>();

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RefreshCw, HelpCircle } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import { useGame } from '@/hooks/useGame';
+import { useApiGame } from '@/hooks/useApiGame';
 import { useAuth } from '@/hooks/useAuth';
 import {
   GitGraph,
@@ -24,11 +24,11 @@ export default function GamePage() {
     isLoading,
     output,
     startGame,
-    executeCommand,
+    executeCommandString,
     resetGame,
     gameReward,
     isGameEnded,
-  } = useGame();
+  } = useApiGame();
 
   const [showTutorial, setShowTutorial] = useState(false);
   const [showEndModal, setShowEndModal] = useState(false);
@@ -58,19 +58,16 @@ export default function GamePage() {
     }
   }, [isGameEnded, gameReward]);
 
-  // Handle command submission
+  // Handle command submission - now uses string parsing including 'git init'
   const handleCommand = (command: string) => {
     setCommandHistory(prev => [...prev, command]);
-    executeCommand(command);
+    executeCommandString(command);
   };
 
-  // Handle tutorial close
+  // Handle tutorial close - user will type 'git init' to start
   const handleTutorialClose = () => {
     setShowTutorial(false);
     markTutorialSeen();
-    if (!gameState) {
-      startGame();
-    }
   };
 
   // Handle game start
@@ -199,15 +196,14 @@ Play at: [your-url]`;
             />
           ) : (
             <div className="h-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center p-8">
-              <p className="text-gray-500 text-center mb-4">
-                Ready to start a new puzzle?
-              </p>
-              <button
-                onClick={() => startGame()}
-                className="px-6 py-2 bg-black text-white rounded-lg font-medium hover:bg-gray-800"
-              >
-                Start Daily Puzzle
-              </button>
+              <div className="text-center">
+                <p className="text-gray-600 text-lg mb-2">
+                  🎮 Welcome to Gitty!
+                </p>
+                <p className="text-gray-500 mb-4">
+                  Type <code className="bg-gray-200 px-2 py-1 rounded font-mono">git init</code> in the terminal below to start the daily puzzle
+                </p>
+              </div>
             </div>
           )}
         </div>
@@ -221,7 +217,7 @@ Play at: [your-url]`;
           />
           <CommandInput
             onSubmit={handleCommand}
-            disabled={!gameState || gameState.status !== 'playing'}
+            disabled={gameState?.status === 'won' || gameState?.status === 'abandoned'}
             history={commandHistory}
           />
         </div>

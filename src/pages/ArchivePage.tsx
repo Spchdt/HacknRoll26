@@ -1,103 +1,56 @@
 import { useState, useEffect } from 'react';
 import { Calendar, ArrowRight, Clock, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '@/lib/api';
 import { cn, getDifficultyInfo, formatDate } from '@/lib/utils';
 
 interface ArchivePuzzle {
   id: string;
   date: string;
   difficulty: 'easy' | 'medium' | 'hard';
-  completed: boolean;
-  score?: number;
 }
 
-// Mock data for development (fallback when API is unavailable)
-const MOCK_ARCHIVE: ArchivePuzzle[] = Array.from({ length: 30 }, (_, i) => {
-  const date = new Date();
-  date.setDate(date.getDate() - i - 1);
+// Generate archive puzzle dates for past 30 days
+// The puzzle ID format is the date (YYYY-MM-DD)
+const generateArchiveDates = (): ArchivePuzzle[] => {
   const difficulties: ('easy' | 'medium' | 'hard')[] = ['easy', 'medium', 'hard'];
   
-  return {
-    id: `puzzle-${i + 1}`,
-    date: date.toISOString().split('T')[0],
-    difficulty: difficulties[i % 7 < 2 ? 0 : i % 7 < 5 ? 1 : 2],
-    completed: Math.random() > 0.3,
-    score: Math.random() > 0.3 ? Math.floor(Math.random() * 100) + 50 : undefined,
-  };
-});
+  return Array.from({ length: 30 }, (_, i) => {
+    const date = new Date();
+    date.setDate(date.getDate() - i - 1);
+    const dateStr = date.toISOString().split('T')[0];
+    
+    return {
+      id: dateStr, // Use date as puzzle ID
+      date: dateStr,
+      // Cycle through difficulties based on day
+      difficulty: difficulties[i % 7 < 2 ? 0 : i % 7 < 5 ? 1 : 2],
+    };
+  });
+};
 
 export default function ArchivePage() {
   const navigate = useNavigate();
-  const [puzzles, setPuzzles] = useState<ArchivePuzzle[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'completed' | 'incomplete'>('all');
-
-  useEffect(() => {
-    const loadArchive = async () => {
-      setIsLoading(true);
-      
-      try {
-        const response = await api.getArchivePuzzles();
-        
-        if (response.success && response.data) {
-          // Map API response to ArchivePuzzle format
-          const archivePuzzles: ArchivePuzzle[] = response.data.puzzles.map(p => ({
-            id: p.id,
-            date: p.date,
-            difficulty: p.difficulty as 'easy' | 'medium' | 'hard',
-            completed: false, // Would need additional API call or user data
-            score: undefined,
-          }));
-          setPuzzles(archivePuzzles);
-        } else {
-          // Fall back to mock data for development
-          console.warn('API unavailable, using mock data');
-          setPuzzles(MOCK_ARCHIVE);
-        }
-      } catch (err) {
-        console.warn('API error, using mock data:', err);
-        setPuzzles(MOCK_ARCHIVE);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadArchive();
-  }, []);
+  const [puzzles] = useState<ArchivePuzzle[]>(generateArchiveDates());
+  const [filter, setFilter] = useState<'all' | 'easy' | 'medium' | 'hard'>('all');
 
   const filteredPuzzles = puzzles.filter(puzzle => {
-    if (filter === 'completed') return puzzle.completed;
-    if (filter === 'incomplete') return !puzzle.completed;
-    return true;
+    if (filter === 'all') return true;
+    return puzzle.difficulty === filter;
   });
 
   const handlePuzzleClick = (puzzleId: string) => {
-    // In production, this would load the archive puzzle
+    // Navigate to game page with puzzle ID
     navigate(`/?puzzle=${puzzleId}`);
   };
-
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <h1 className="text-2xl font-bold">Puzzle Archive</h1>
-        <div className="animate-pulse grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <div key={i} className="h-28 bg-gray-100 rounded-lg" />
-          ))}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <h1 className="text-2xl font-bold">Puzzle Archive</h1>
         
-        {/* Filter tabs */}
+        {/* Filter tabs by difficulty */}
         <div className="flex bg-gray-100 rounded-lg p-1">
-          {(['all', 'completed', 'incomplete'] as const).map((f) => (
+          {(['all', 'easy', 'medium', 'hard'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -114,11 +67,7 @@ export default function ArchivePage() {
 
       {/* Stats summary */}
       <div className="flex gap-4 text-sm text-gray-500">
-        <span>{puzzles.length} total puzzles</span>
-        <span>•</span>
-        <span>{puzzles.filter(p => p.completed).length} completed</span>
-        <span>•</span>
-        <span>{puzzles.filter(p => !p.completed).length} remaining</span>
+        <span>{puzzles.length} total puzzles available</span>
       </div>
 
       {/* Puzzle grid */}
@@ -132,8 +81,7 @@ export default function ArchivePage() {
               onClick={() => handlePuzzleClick(puzzle.id)}
               className={cn(
                 'text-left border rounded-lg p-4 transition-all',
-                'hover:border-gray-400 hover:shadow-sm',
-                puzzle.completed && 'bg-green-50/50 border-green-200'
+                'hover:border-gray-400 hover:shadow-sm'
               )}
             >
               <div className="flex items-start justify-between mb-2">
@@ -153,24 +101,10 @@ export default function ArchivePage() {
               </div>
               
               <div className="flex items-center justify-between mt-3 pt-2 border-t">
-                {puzzle.completed ? (
-                  <>
-                    <span className="text-sm text-green-600 flex items-center gap-1">
-                      <Star size={14} />
-                      Completed
-                    </span>
-                    {puzzle.score && (
-                      <span className="text-sm font-mono font-bold">
-                        {puzzle.score} pts
-                      </span>
-                    )}
-                  </>
-                ) : (
-                  <span className="text-sm text-gray-400 flex items-center gap-1">
-                    <Clock size={14} />
-                    Not attempted
-                  </span>
-                )}
+                <span className="text-sm text-gray-400 flex items-center gap-1">
+                  <Clock size={14} />
+                  Play puzzle
+                </span>
               </div>
             </button>
           );

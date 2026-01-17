@@ -1,12 +1,12 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { GameState, GameCommand, CommandResult, GameReward, Puzzle, UndoState, GitGraph } from '@/lib/types';
+import type { GameState, GameCommand, CommandResult, GameReward, LocalPuzzle, UndoState, GitGraph } from '@/lib/types';
 import { GitEngine, createTestPuzzle, serializeGraph, deserializeGraph } from '@/lib/gitEngine';
 import { cloneGitGraph, deepClone, calculateScore, getFromStorage, saveToStorage, parseGitCommand } from '@/lib/utils';
 
 interface UseGameReturn {
   // State
   gameState: GameState | null;
-  puzzle: Puzzle | null;
+  puzzle: LocalPuzzle | null;
   isLoading: boolean;
   error: string | null;
   output: string[];
@@ -26,7 +26,7 @@ const STORAGE_KEY = 'gitty_game_state';
 
 export function useGame(): UseGameReturn {
   const [gameState, setGameState] = useState<GameState | null>(null);
-  const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
+  const [puzzle, setPuzzle] = useState<LocalPuzzle | null>(null);
   const [engine, setEngine] = useState<GitEngine | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function useGame(): UseGameReturn {
 
   // Load saved game on mount
   useEffect(() => {
-    const saved = getFromStorage<{ state: GameState; puzzle: Puzzle } | null>(STORAGE_KEY, null);
+    const saved = getFromStorage<{ state: GameState; puzzle: LocalPuzzle } | null>(STORAGE_KEY, null);
     if (saved && saved.state.status === 'playing') {
       // Restore game
       const savedPuzzle = saved.puzzle;

@@ -1,50 +1,38 @@
 import { useState, useEffect } from 'react';
-import { Trophy, Medal, Award, ChevronUp, ChevronDown } from 'lucide-react';
+import { Trophy, Medal, Award, ChevronUp, ChevronDown, AlertCircle, RefreshCw } from 'lucide-react';
 import type { LeaderboardEntry } from '@/lib/types';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 
-// Mock data for development (fallback when API is unavailable)
-const MOCK_LEADERBOARD: LeaderboardEntry[] = Array.from({ length: 20 }, (_, i) => ({
-  rank: i + 1,
-  userId: `user_${i}`,
-  username: `Player${i + 1}`,
-  score: 1000 - i * 35 + Math.floor(Math.random() * 20),
-  gamesPlayed: Math.floor(Math.random() * 50) + 10,
-}));
-
 export default function LeaderboardPage() {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
+  const [, setUserEntry] = useState<LeaderboardEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'score' | 'gamesPlayed'>('score');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  useEffect(() => {
-    const loadLeaderboard = async () => {
-      setIsLoading(true);
-      
-      try {
-        const response = await api.getLeaderboard();
-        
-        if (response.success && response.data) {
-          setLeaderboard(response.data.entries);
-          setUserRank(response.data.userRank || null);
-        } else {
-          // Fall back to mock data for development
-          console.warn('API unavailable, using mock data');
-          setLeaderboard(MOCK_LEADERBOARD);
-          setUserRank(42);
-        }
-      } catch (err) {
-        console.warn('API error, using mock data:', err);
-        setLeaderboard(MOCK_LEADERBOARD);
-        setUserRank(42);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const loadLeaderboard = async () => {
+    setIsLoading(true);
+    setError(null);
     
+    try {
+      const response = await api.getLeaderboard();
+      
+      // API returns { entries, userRank?, userEntry? } directly
+      setLeaderboard(response.entries);
+      setUserRank(response.userRank ?? null);
+      setUserEntry(response.userEntry ?? null);
+    } catch (err) {
+      console.error('Failed to load leaderboard:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadLeaderboard();
   }, []);
 
@@ -84,6 +72,26 @@ export default function LeaderboardPage() {
           {Array.from({ length: 10 }).map((_, i) => (
             <div key={i} className="h-12 bg-gray-100 rounded-lg" />
           ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-bold">Leaderboard</h1>
+        <div className="text-center py-12 bg-red-50 border border-red-200 rounded-lg">
+          <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
+          <p className="text-red-600 font-medium mb-2">Failed to load leaderboard</p>
+          <p className="text-red-500 text-sm mb-4">{error}</p>
+          <button
+            onClick={loadLeaderboard}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <RefreshCw size={16} />
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -131,9 +139,9 @@ export default function LeaderboardPage() {
             </tr>
           </thead>
           <tbody>
-            {sortedLeaderboard.map((entry) => (
+            {sortedLeaderboard.map((entry, index) => (
               <tr 
-                key={entry.userId} 
+                key={`${entry.rank}-${entry.username}-${index}`} 
                 className={cn(
                   'border-t hover:bg-gray-50 transition-colors',
                   entry.rank <= 3 && 'bg-amber-50/50'

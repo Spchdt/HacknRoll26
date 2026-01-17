@@ -1,4 +1,194 @@
 // Core game types for Gitty
+// Based on the Gitty API TypeScript Types Reference
+
+// ============================================
+// API Game State (matches backend response)
+// ============================================
+
+export interface ApiCommit {
+  id: string;
+  message: string;
+  parents: string[]; // List of parent commit IDs
+  timestamp: number; // Unix timestamp
+}
+
+export interface ApiGameState {
+  commits: ApiCommit[];
+  /** Mapping of branch names to their target commit IDs */
+  branches: Record<string, string>;
+  /** The current commit ID pointed to by HEAD */
+  head: string;
+  /** The currently active branch name, or null if in detached HEAD state */
+  currentBranch: string | null;
+}
+
+// ============================================
+// API Command Types (Discriminated Union)
+// ============================================
+
+export type Command =
+  | CommitCommand
+  | BranchCommand
+  | CheckoutCommand
+  | MergeCommand
+  | RebaseCommand
+  | UndoCommand;
+
+export interface CommitCommand {
+  type: 'commit';
+  message: string;
+}
+
+export interface BranchCommand {
+  type: 'branch';
+  name: string;
+}
+
+export interface CheckoutCommand {
+  type: 'checkout';
+  target: string;
+}
+
+export interface MergeCommand {
+  type: 'merge';
+  branch: string;
+}
+
+export interface RebaseCommand {
+  type: 'rebase';
+  onto: string;
+}
+
+export interface UndoCommand {
+  type: 'undo';
+}
+
+// ============================================
+// API Request & Response Types
+// ============================================
+
+export interface UserProfileResponse {
+  id: string;
+  username: string | null;
+  createdAt: string;
+}
+
+export interface SetNameRequest {
+  username: string;
+}
+
+export interface StartGameRequest {
+  gameId: string; // Use "daily" for daily challenge or a specific puzzle ID
+}
+
+export interface StartGameResponse {
+  success: boolean;
+  gameState?: ApiGameState;
+  puzzle?: Puzzle;
+  isCompleted?: boolean;
+  rewards?: GameRewards;
+  error?: string;
+}
+
+export interface CommandRequest {
+  gameId: string;
+  command: Command;
+}
+
+export interface CommandResponse {
+  success: boolean;
+  gameState?: ApiGameState;
+  isCompleted?: boolean;
+  rewards?: GameRewards;
+  error?: string;
+}
+
+export interface GameRewards {
+  score: number;
+  parScore: number;
+  commandsUsed: number;
+  performance: 'under_par' | 'at_par' | 'over_par';
+  bonusPoints: number;
+  optimalSolution: {
+    commands: Command[];
+    explanation: string;
+  };
+}
+
+export interface Puzzle {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  tags: string[];
+  initialState: ApiGameState;
+  targetState: ApiGameState;
+  parScore: number;
+  hints: string[];
+  solution?: PuzzleSolution;
+  createdAt: string; // ISO 8601
+}
+
+export interface PuzzleSolution {
+  commands: Command[];
+  explanation: string;
+}
+
+// ============================================
+// Stats & Leaderboard Types
+// ============================================
+
+export interface UserStats {
+  id: string;
+  userId: string;
+  averageScore: number | null;
+  bestScore: number | null;
+  currentStreak: number;
+  maxStreak: number;
+  totalCommandsUsed: number;
+  totalGamesPlayed: number;
+  totalGamesWon: number;
+  lastPlayedAt: string | null;
+}
+
+export interface StatsResponse {
+  stats: UserStats;
+  recentGames: RecentGame[];
+}
+
+export interface RecentGame {
+  id: string;
+  status: 'completed' | 'abandoned';
+  score: number;
+  completedAt: string;
+}
+
+export interface LeaderboardResponse {
+  entries: LeaderboardEntry[];
+  userRank?: number;
+  userEntry?: LeaderboardEntry;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  username: string;
+  score: number;
+  gamesPlayed: number;
+}
+
+// ============================================
+// Common Response Pattern
+// ============================================
+
+export interface BaseResponse {
+  success: boolean;
+  error?: string;
+  message?: string;
+}
+
+// ============================================
+// Local Client-Side Types (for UI/Engine)
+// ============================================
 
 export interface Commit {
   id: string;
@@ -66,8 +256,11 @@ export interface CommandResult {
   gameWon?: boolean;
 }
 
-export interface Puzzle {
+// Local Puzzle type for client-side engine (extended from API Puzzle)
+export interface LocalPuzzle {
   id: string;
+  title?: string;
+  description?: string;
   date?: string;
   difficulty: 'easy' | 'medium' | 'hard';
   files: FileTarget[];
@@ -85,7 +278,8 @@ export interface PuzzleConstraints {
   allowedCommands: GameCommand['type'][];
 }
 
-export interface UserStats {
+// Legacy types for backwards compatibility
+export interface LegacyUserStats {
   totalGamesPlayed: number;
   totalGamesWon: number;
   totalCommandsUsed: number;
@@ -96,14 +290,6 @@ export interface UserStats {
   commandDistribution: Record<GameCommand['type'], number>;
 }
 
-export interface LeaderboardEntry {
-  rank: number;
-  userId: string;
-  username: string;
-  score: number;
-  gamesPlayed: number;
-}
-
 export interface User {
   id: string;
   username?: string;
@@ -111,24 +297,11 @@ export interface User {
   lastActiveAt: number;
 }
 
-// API Response types
+// Legacy response types (for backwards compatibility with existing code)
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
-}
-
-export interface GameStartResponse {
-  gameId: string;
-  puzzle: Puzzle;
-  state: GameState;
-  isResumed: boolean;
-}
-
-export interface GameCommandResponse {
-  result: CommandResult;
-  state: GameState;
-  reward?: GameReward;
 }
 
 export interface GameReward {

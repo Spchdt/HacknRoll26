@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getStoredUserId, saveUserId, generateShortId } from '@/lib/utils';
 import { api } from '@/lib/api';
 
 interface UseAuthReturn {
@@ -8,7 +7,7 @@ interface UseAuthReturn {
   isLoading: boolean;
   error: string | null;
   setUsername: (username: string) => Promise<boolean>;
-  generateUserId: () => string;
+  refreshProfile: () => Promise<void>;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -17,28 +16,27 @@ export function useAuth(): UseAuthReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Initialize user ID on mount
-  useEffect(() => {
-    let storedId = getStoredUserId();
+  // Fetch user profile on mount (IP-based authentication)
+  const refreshProfile = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
     
-    if (!storedId) {
-      // Generate a new user ID
-      // In production, this would be done server-side using IP + device info
-      storedId = `user_${generateShortId()}`;
-      saveUserId(storedId);
+    try {
+      const profile = await api.getProfile();
+      setUserId(profile.id);
+      setUsernameState(profile.username);
+    } catch (err) {
+      // User may not exist yet, which is fine
+      console.log('Profile not found, will be created on first action');
+      setError(null);
+    } finally {
+      setIsLoading(false);
     }
-    
-    setUserId(storedId);
-    setIsLoading(false);
   }, []);
 
-  // Generate a new user ID (for testing/reset)
-  const generateUserId = useCallback((): string => {
-    const newId = `user_${generateShortId()}`;
-    saveUserId(newId);
-    setUserId(newId);
-    return newId;
-  }, []);
+  useEffect(() => {
+    refreshProfile();
+  }, [refreshProfile]);
 
   // Set username for leaderboard
   const setUsername = useCallback(async (newUsername: string): Promise<boolean> => {
@@ -56,7 +54,8 @@ export function useAuth(): UseAuthReturn {
         return false;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to set username');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to set username';
+      setError(errorMessage);
       return false;
     } finally {
       setIsLoading(false);
@@ -69,6 +68,6 @@ export function useAuth(): UseAuthReturn {
     isLoading,
     error,
     setUsername,
-    generateUserId,
+    refreshProfile,
   };
 }
