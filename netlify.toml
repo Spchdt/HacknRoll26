@@ -1,6 +1,6 @@
 [build]
-  command = "bun install --frozen-lockfile=false && bun run build"
-  publish = "dist"
+command = "bun install --no-frozen-lockfile && bun run build"
+publish = "dist"
 
 [build.environment]
   # Ensure Bun is available
