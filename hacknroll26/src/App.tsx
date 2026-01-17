@@ -5,6 +5,7 @@ import { GamePage } from './pages/GamePage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { StatsPage } from './pages/StatsPage';
 import { ArchivePage } from './pages/ArchivePage';
+import { GitCommandsPage } from './pages/GitCommandsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
       {
         path: 'archive',
         element: <ArchivePage />,
+      },
+      {
+        path: 'commands',
+        element: <GitCommandsPage />,
       },
     ],
   },

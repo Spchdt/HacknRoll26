@@ -3,7 +3,7 @@ import { NavLink, Outlet } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useUIStore, useThemeStore } from '../stores';
 import { Button } from './ui/button';
-import { Gamepad2, Trophy, BarChart3, Archive, Sun, Moon, Menu, X, Leaf, Heart } from 'lucide-react';
+import { Gamepad2, Trophy, BarChart3, Archive, Sun, Moon, Menu, X, Leaf, Heart, Code } from 'lucide-react';
 
 export function Layout() {
   const { isMobileMenuOpen, setMobileMenuOpen } = useUIStore();
@@ -21,6 +21,7 @@ export function Layout() {
     { path: '/leaderboard', label: 'Leaderboard', icon: Trophy },
     { path: '/stats', label: 'Stats', icon: BarChart3 },
     { path: '/archive', label: 'Archive', icon: Archive },
+    { path: '/commands', label: 'Commands', icon: Code },
   ];
 
   return (

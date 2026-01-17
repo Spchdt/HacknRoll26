@@ -105,7 +105,6 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: hidden;
 }
 
 body {
@@ -114,8 +113,6 @@ body {
   color: var(--color-text);
   line-height: 1.5;
   min-height: 100vh;
-  height: 100vh;
-  overflow: hidden;
 }
 
 a {
@@ -247,6 +244,7 @@ button {
   width: 100%;
   margin: 0 auto;
   padding: var(--spacing-lg);
+  overflow-y: auto;
 }
 
 .app-footer {
@@ -505,9 +503,9 @@ button {
    ============================================ */
 .game-page {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .game-content {
@@ -537,13 +535,13 @@ button {
 }
 
 .graph-section {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   overflow: auto;
   padding: 0;
   z-index: 1;
@@ -557,8 +555,8 @@ button {
 }
 
 .command-section {
-  position: fixed;
-  top: 50%;
+  position: absolute;
+  top: 60%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
@@ -577,8 +575,8 @@ button {
 }
 
 .history-section {
-  position: fixed;
-  bottom: 20px;
+  position: absolute;
+  bottom: 300px;
   right: 20px;
   width: 100%;
   max-width: 350px;
@@ -1318,4 +1316,93 @@ button {
 .puzzle-score {
   font-size: 0.875rem;
   color: var(--color-primary-hover);
+}
+
+/* ============================================
+   Git Commands Page
+   ============================================ */
+.git-commands-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+.flashcards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-lg);
+}
+
+.flashcard {
+  perspective: 1000px;
+  height: 240px;
+  cursor: pointer;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.3s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  text-align: center;
+  backface-visibility: hidden;
+  background-color: var(--color-bg-secondary);
+  border: 2px solid var(--color-border);
+  transition: border-color var(--transition-fast);
+}
+
+.flashcard:hover .flashcard-front,
+.flashcard:hover .flashcard-back {
+  border-color: var(--color-primary);
+}
+
+.flashcard-front {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flashcard-front code {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  word-break: break-word;
+  font-family: 'Monaco', 'Courier New', monospace;
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+  background-color: var(--color-bg-secondary);
+}
+
+.flashcard-back p {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+@media (max-width: 768px) {
+  .flashcards-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--spacing-md);
+  }
+
+  .flashcard {
+    height: 200px;
+  }
 }
