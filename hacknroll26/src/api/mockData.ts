@@ -9,7 +9,6 @@ import type {
   GameState,
   GitGraph,
   Puzzle,
-  FileTarget,
   GameResult,
 } from '../types';
 
@@ -144,15 +143,23 @@ function generateCommitId(): string {
   return `commit-${commitCounter++}`;
 }
 
+// Deep clone the state to ensure React detects changes
+function cloneState(state: GameState): GameState {
+  return JSON.parse(JSON.stringify(state));
+}
+
 export const mockApi = {
   async startGame(puzzleId: string): Promise<StartGameResponse> {
     await delay(300);
+    
+    // Reset commit counter
+    commitCounter = 3;
     
     // Reset game state for a fresh start
     currentGameState = {
       ...mockGameState,
       puzzleId: puzzleId === 'daily' ? mockPuzzle.id : puzzleId,
-      puzzle: { ...mockPuzzle },
+      puzzle: JSON.parse(JSON.stringify(mockPuzzle)),
       graph: JSON.parse(JSON.stringify(mockGraph)),
       collectedFiles: [],
       commandHistory: [],
@@ -167,12 +174,12 @@ export const mockApi = {
     
     return {
       gameId: `game-${Date.now()}`,
-      state: currentGameState,
+      state: cloneState(currentGameState),
     };
   },
 
-  async sendCommand(gameId: string, command: GameCommand): Promise<CommandResponse> {
-    await delay(200);
+  async sendCommand(_gameId: string, command: GameCommand): Promise<CommandResponse> {
+    await delay(150);
     
     const state = currentGameState;
     const graph = state.graph!;
@@ -181,11 +188,11 @@ export const mockApi = {
     // Handle undo
     if (command.type === 'undo') {
       if (state.commandHistory.length === 0) {
-        return { state, error: 'Nothing to undo' };
+        return { state: cloneState(state), error: 'Nothing to undo' };
       }
       state.commandHistory.pop();
       state.commandCount = Math.max(0, state.commandCount - 1);
-      return { state };
+      return { state: cloneState(state) };
     }
     
     // Add command to history
@@ -246,12 +253,12 @@ export const mockApi = {
       case 'merge': {
         const currentBranch = graph.head.type === 'attached' ? graph.head.ref : null;
         if (!currentBranch) {
-          return { state, error: 'Cannot merge in detached HEAD state' };
+          return { state: cloneState(state), error: 'Cannot merge in detached HEAD state' };
         }
         
         const targetBranch = graph.branches[command.branch];
         if (!targetBranch) {
-          return { state, error: `Branch ${command.branch} not found` };
+          return { state: cloneState(state), error: `Branch ${command.branch} not found` };
         }
         
         const currentTip = graph.branches[currentBranch].tipCommitId;
@@ -302,7 +309,7 @@ export const mockApi = {
             timeElapsed: state.completedAt - state.startedAt!,
           };
           
-          return { state, result };
+          return { state: cloneState(state), result };
         }
         break;
       }
@@ -326,7 +333,7 @@ export const mockApi = {
       }
     }
     
-    return { state };
+    return { state: cloneState(state) };
   },
 
   async setUsername(username: string): Promise<SetNameResponse> {
