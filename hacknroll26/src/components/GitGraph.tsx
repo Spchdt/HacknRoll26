@@ -1,5 +1,6 @@
-import { useMemo } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { File, CheckCircle } from 'lucide-react';
 import type { GitGraph, FileTarget } from '../types';
 
 interface GitGraphViewProps {
@@ -29,6 +30,52 @@ const PADDING_X = 60;
 const PADDING_Y = 40;
 
 export function GitGraphView({ graph, fileTargets, branches, maxDepth }: GitGraphViewProps) {
+  const [scale, setScale] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Handle pinch zoom
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let lastDistance = 0;
+
+    const getTouchDistance = (touches: TouchList) => {
+      if (touches.length < 2) return 0;
+      const dx = touches[0].clientX - touches[1].clientX;
+      const dy = touches[0].clientY - touches[1].clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    };
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        lastDistance = getTouchDistance(e.touches);
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length === 2) {
+        const currentDistance = getTouchDistance(e.touches);
+        const delta = currentDistance - lastDistance;
+        
+        setScale(prev => {
+          const newScale = Math.max(0.5, Math.min(3, prev + delta * 0.005));
+          return newScale;
+        });
+        
+        lastDistance = currentDistance;
+      }
+    };
+
+    container.addEventListener('touchstart', handleTouchStart);
+    container.addEventListener('touchmove', handleTouchMove);
+
+    return () => {
+      container.removeEventListener('touchstart', handleTouchStart);
+      container.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, []);
+
   const { nodes, edges, filePositions, branchLines } = useMemo(() => {
     if (!graph) {
       return { nodes: [], edges: [], filePositions: [], branchLines: [] };
@@ -165,13 +212,23 @@ export function GitGraphView({ graph, fileTargets, branches, maxDepth }: GitGrap
   };
 
   return (
-    <div className="git-graph-container horizontal">
+    <div ref={containerRef} className="git-graph-container horizontal" style={{ transform: `scale(${scale})`, transformOrigin: '0 0', transition: 'transform 0.1s' }}>
       <svg
         className="git-graph-svg"
         width={svgWidth}
         height={svgHeight}
         viewBox={`0 0 ${svgWidth} ${svgHeight}`}
       >
+        {/* Grid background */}
+        <defs>
+          <pattern id="grid" width={CELL_WIDTH} height={CELL_HEIGHT} patternUnits="userSpaceOnUse">
+            <path d={`M ${CELL_WIDTH} 0 L 0 0 0 ${CELL_HEIGHT}`} fill="none" stroke="#e5e7eb" strokeWidth="1" />
+          </pattern>
+        </defs>
+        
+        {/* Fill the entire background with grid */}
+        <rect width={svgWidth} height={svgHeight} fill="url(#grid)" />
+
         {/* Branch labels on the left */}
         {branches.map((branch, index) => (
           <text

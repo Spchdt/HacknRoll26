@@ -104,3 +104,34 @@ export const useUIStore = create<UIStore>()((set) => ({
   setActiveTab: (tab) => set({ activeTab: tab }),
   setMobileMenuOpen: (open) => set({ isMobileMenuOpen: open }),
 }));
+
+// ============================================
+// Theme Store
+// ============================================
+
+interface ThemeStore {
+  isDarkMode: boolean;
+  toggleTheme: () => void;
+}
+
+export const useThemeStore = create<ThemeStore>()(
+  persist(
+    (set) => ({
+      isDarkMode: true,
+      toggleTheme: () =>
+        set((state) => {
+          const newDarkMode = !state.isDarkMode;
+          // Apply theme to document
+          if (newDarkMode) {
+            document.body.classList.remove('light-mode');
+          } else {
+            document.body.classList.add('light-mode');
+          }
+          return { isDarkMode: newDarkMode };
+        }),
+    }),
+    {
+      name: 'hacknroll26-theme',
+    }
+  )
+);

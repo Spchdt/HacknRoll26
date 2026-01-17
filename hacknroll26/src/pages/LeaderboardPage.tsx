@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { useLeaderboard } from '../api/hooks';
+import { Trophy, Medal } from 'lucide-react';
 
 export function LeaderboardPage() {
   const { data: leaderboard, isLoading, error } = useLeaderboard();
@@ -25,11 +26,11 @@ export function LeaderboardPage() {
   const getRankEmoji = (rank: number) => {
     switch (rank) {
       case 1:
-        return '🥇';
+        return <Medal size={20} className="text-yellow-500" />;
       case 2:
-        return '🥈';
+        return <Medal size={20} className="text-gray-400" />;
       case 3:
-        return '🥉';
+        return <Medal size={20} className="text-orange-600" />;
       default:
         return '';
     }
@@ -38,7 +39,7 @@ export function LeaderboardPage() {
   return (
     <div className="leaderboard-page">
       <div className="page-header">
-        <h1>🏆 Leaderboard</h1>
+        <h1 className="flex items-center gap-2"><Trophy size={28} /> Leaderboard</h1>
         <p>Top 50 players this season</p>
       </div>
 

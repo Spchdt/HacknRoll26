@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useStats } from '../api/hooks';
 import { useUserPrefsStore } from '../stores';
+import { Gamepad2, CheckCircle, BarChart3, Code, Trophy, TrendingUp, Flame, Zap } from 'lucide-react';
 
 export function StatsPage() {
   const { data: stats, isLoading, error } = useStats();
@@ -41,66 +42,69 @@ export function StatsPage() {
     {
       label: 'Games Played',
       value: stats.totalGamesPlayed,
-      icon: '🎮',
+      icon: Gamepad2,
     },
     {
       label: 'Games Won',
       value: stats.totalGamesWon,
-      icon: '✅',
+      icon: CheckCircle,
     },
     {
       label: 'Win Rate',
       value: `${winRate}%`,
-      icon: '📊',
+      icon: BarChart3,
     },
     {
       label: 'Total Commands',
       value: stats.totalCommandsUsed,
-      icon: '💻',
+      icon: Code,
     },
     {
       label: 'Best Score',
       value: stats.bestScore,
-      icon: '🏆',
+      icon: Trophy,
     },
     {
       label: 'Average Score',
       value: Math.round(stats.averageScore),
-      icon: '📈',
+      icon: TrendingUp,
     },
     {
       label: 'Current Streak',
       value: `${stats.currentStreak} days`,
-      icon: '🔥',
+      icon: Flame,
     },
     {
       label: 'Max Streak',
       value: `${stats.maxStreak} days`,
-      icon: '⚡',
+      icon: Zap,
     },
   ];
 
   return (
     <div className="stats-page">
       <div className="page-header">
-        <h1>📊 Your Stats</h1>
+        <h1 className="flex items-center gap-2"><BarChart3 size={28} /> Your Stats</h1>
         {username && <p className="username-display">Playing as: {username}</p>}
       </div>
 
       <div className="stats-grid">
-        {statCards.map((stat, index) => (
-          <motion.div
-            key={stat.label}
-            className="stat-card"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.05 }}
-          >
-            <span className="stat-icon">{stat.icon}</span>
-            <span className="stat-value">{stat.value}</span>
-            <span className="stat-label">{stat.label}</span>
-          </motion.div>
-        ))}
+        {statCards.map((stat, index) => {
+          const IconComponent = stat.icon;
+          return (
+            <motion.div
+              key={stat.label}
+              className="stat-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <div className="stat-icon"><IconComponent size={24} /></div>
+              <span className="stat-value">{stat.value}</span>
+              <span className="stat-label">{stat.label}</span>
+            </motion.div>
+          );
+        })}
       </div>
 
       {/* Win rate progress bar */}
@@ -128,7 +132,7 @@ export function StatsPage() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
         >
-          <span className="streak-icon">🔥</span>
+          <Flame className="w-8 h-8 text-orange-500" />
           <div className="streak-content">
             <strong>{stats.currentStreak} day streak!</strong>
             <p>Keep it up! Play today to continue your streak.</p>

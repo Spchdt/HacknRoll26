@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { GameCommand, CommandType, PuzzleConstraints } from '../types';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 interface CommandInputProps {
   onCommand: (command: GameCommand) => void;
@@ -35,6 +37,73 @@ export function CommandInput({
   const [selectedCommand, setSelectedCommand] = useState<CommandType | null>(null);
   const [commitMessage, setCommitMessage] = useState('');
   const [targetBranch, setTargetBranch] = useState('');
+  const [typedCommand, setTypedCommand] = useState('');
+  const [useTypingMode, setUseTypingMode] = useState(false);
+
+  // Parse typed command and execute it
+  const handleTypedCommandSubmit = () => {
+    const input = typedCommand.trim();
+    if (!input || isLoading || disabled) return;
+
+    const parts = input.split(' ');
+    if (parts[0] !== 'git') {
+      setTypedCommand('');
+      return;
+    }
+
+    const cmdType = parts[1]?.toLowerCase();
+    let command: GameCommand | null = null;
+
+    try {
+      switch (cmdType) {
+        case 'commit': {
+          const msgMatch = input.match(/-m\s+['"](.*?)['"]/) || input.match(/-m\s+(.+)/);
+          const message = msgMatch ? msgMatch[1] : 'commit';
+          command = { type: 'commit', message };
+          break;
+        }
+        case 'branch': {
+          const branchName = parts[2];
+          if (branchName) {
+            command = { type: 'branch', name: branchName };
+          }
+          break;
+        }
+        case 'checkout': {
+          const target = parts[2];
+          if (target) {
+            command = { type: 'checkout', target };
+          }
+          break;
+        }
+        case 'merge': {
+          const branch = parts[2];
+          if (branch) {
+            command = { type: 'merge', branch };
+          }
+          break;
+        }
+        case 'rebase': {
+          const onto = parts.slice(2).join(' ');
+          if (onto) {
+            command = { type: 'rebase', onto };
+          }
+          break;
+        }
+        case 'undo': {
+          command = { type: 'undo' };
+          break;
+        }
+      }
+
+      if (command) {
+        onCommand(command);
+        setTypedCommand('');
+      }
+    } catch (e) {
+      // Invalid command
+    }
+  };
 
   const handleSubmit = () => {
     if (!selectedCommand || isLoading || disabled) return;
@@ -101,8 +170,6 @@ export function CommandInput({
     }
   };
 
-  const commandButtons: CommandType[] = ['commit', 'checkout', 'merge', 'rebase', 'undo'];
-
   return (
     <div className="command-input">
       {/* Constraints display */}
@@ -129,72 +196,121 @@ export function CommandInput({
         </div>
       )}
 
-      {/* Command buttons */}
-      <div className="command-buttons">
-        {commandButtons.map((cmd) => (
-          <motion.button
-            key={cmd}
-            className={`command-btn ${selectedCommand === cmd ? 'selected' : ''}`}
-            onClick={() => setSelectedCommand(cmd)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+      {/* Typing mode toggle */}
+      <div className="input-mode-toggle">
+        <label className="toggle-label">
+          <input
+            type="checkbox"
+            checked={useTypingMode}
+            onChange={(e) => setUseTypingMode(e.target.checked)}
             disabled={disabled}
-          >
-            <span className="command-name">git {cmd}</span>
-          </motion.button>
-        ))}
+          />
+          <span>Typing Mode</span>
+        </label>
       </div>
 
-      {/* Command-specific inputs */}
-      {selectedCommand && (
+      {/* Typing mode input */}
+      {useTypingMode ? (
         <motion.div
-          className="command-params"
+          className="typing-input-section"
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <p className="command-description">{commandDescriptions[selectedCommand]}</p>
-
-          {selectedCommand === 'commit' && (
-            <input
-              type="text"
-              className="input"
-              placeholder="Commit message (optional)"
-              value={commitMessage}
-              onChange={(e) => setCommitMessage(e.target.value)}
+          <p className="typing-hint">Type git commands directly (e.g., "git commit -m 'message'")</p>
+          <div className="typing-input-group">
+            <span className="terminal-prompt">$</span>
+            <Input
+              placeholder="git commit | git checkout | git merge | ..."
+              value={typedCommand}
+              onChange={(e) => setTypedCommand(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleTypedCommandSubmit();
+                }
+              }}
+              disabled={isLoading || disabled}
+              autoFocus
             />
-          )}
-
-          {['branch', 'checkout', 'merge', 'rebase'].includes(selectedCommand) && (
-            <select
-              className="select"
-              value={targetBranch}
-              onChange={(e) => setTargetBranch(e.target.value)}
-            >
-              <option value="">Select a branch...</option>
-              {availableBranches.map((branch) => (
-                <option key={branch} value={branch}>
-                  {branch}
-                </option>
-              ))}
-            </select>
-          )}
-
-          <div className="command-actions">
-            <button
-              className="btn btn-secondary"
-              onClick={() => setSelectedCommand(null)}
-            >
-              Cancel
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={handleSubmit}
-              disabled={!canExecute()}
-            >
-              {isLoading ? 'Executing...' : 'Execute'}
-            </button>
           </div>
+          <Button
+            onClick={handleTypedCommandSubmit}
+            disabled={isLoading || disabled || !typedCommand.trim()}
+          >
+            {isLoading ? 'Executing...' : 'Execute'}
+          </Button>
         </motion.div>
+      ) : (
+        <>
+          {/* Command buttons */}
+          <div className="command-buttons">
+            {['commit', 'checkout', 'merge', 'rebase', 'undo'].map((cmd) => (
+              <motion.div
+                key={cmd}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Button
+                  variant={selectedCommand === cmd ? 'default' : 'outline'}
+                  onClick={() => setSelectedCommand(cmd as CommandType)}
+                  disabled={disabled}
+                  className="w-full"
+                >
+                  <span>git {cmd}</span>
+                </Button>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Command-specific inputs */}
+          {selectedCommand && (
+            <motion.div
+              className="command-params"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <p className="command-description">{commandDescriptions[selectedCommand]}</p>
+
+              {selectedCommand === 'commit' && (
+                <Input
+                  placeholder="Commit message (optional)"
+                  value={commitMessage}
+                  onChange={(e) => setCommitMessage(e.target.value)}
+                />
+              )}
+
+              {['branch', 'checkout', 'merge', 'rebase'].includes(selectedCommand) && (
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={targetBranch}
+                  onChange={(e) => setTargetBranch(e.target.value)}
+                >
+                  <option value="">Select a branch...</option>
+                  {availableBranches.map((branch) => (
+                    <option key={branch} value={branch}>
+                      {branch}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <div className="command-actions">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedCommand(null)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleSubmit}
+                  disabled={!canExecute()}
+                >
+                  {isLoading ? 'Executing...' : 'Execute'}
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </>
       )}
     </div>
   );

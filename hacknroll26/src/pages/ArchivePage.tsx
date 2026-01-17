@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useArchive, useStartGame } from '../api/hooks';
+import { useArchive } from '../api/hooks';
+import { Star, Archive } from 'lucide-react';
 
 export function ArchivePage() {
   const { data: puzzles, isLoading, error } = useArchive();
-  const startGame = useStartGame();
   const navigate = useNavigate();
   const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
 
@@ -39,9 +39,9 @@ export function ArchivePage() {
 
   const months = puzzlesByMonth ? Object.keys(puzzlesByMonth).sort().reverse() : [];
 
-  const handlePlayPuzzle = async (puzzleId: string) => {
-    await startGame.mutateAsync(puzzleId);
-    navigate('/');
+  const handlePlayPuzzle = (puzzleDate: string) => {
+    // Navigate to game page with date parameter for git clone
+    navigate(`/?date=${puzzleDate}`);
   };
 
   const formatMonth = (monthStr: string) => {
@@ -51,13 +51,15 @@ export function ArchivePage() {
   };
 
   const getDifficultyStars = (difficulty: number) => {
-    return '⭐'.repeat(difficulty);
+    return Array.from({ length: difficulty }).map((_, i) => (
+      <Star key={i} size={18} className="fill-yellow-400 text-yellow-400 inline mr-1" />
+    ));
   };
 
   return (
     <div className="archive-page">
       <div className="page-header">
-        <h1>📚 Puzzle Archive</h1>
+        <h1 className="flex items-center gap-2"><Archive size={28} /> Puzzle Archive</h1>
         <p>Practice with past puzzles (progress won't affect leaderboard)</p>
       </div>
 
@@ -111,8 +113,7 @@ export function ArchivePage() {
                   )}
                   <button
                     className="btn btn-secondary btn-small"
-                    onClick={() => handlePlayPuzzle(puzzle.id)}
-                    disabled={startGame.isPending}
+                    onClick={() => handlePlayPuzzle(puzzle.date)}
                   >
                     {puzzle.completed ? 'Replay' : 'Play'}
                   </button>

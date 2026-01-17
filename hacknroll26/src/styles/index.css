@@ -2,7 +2,7 @@
    CSS Variables - Wordle-inspired color scheme
    ============================================ */
 :root {
-  /* Colors */
+  /* Colors - Dark Mode (Default) */
   --color-bg: #121213;
   --color-bg-secondary: #1a1a1b;
   --color-bg-tertiary: #262627;
@@ -58,6 +58,40 @@
   --font-mono: 'SF Mono', Monaco, 'Consolas', 'Liberation Mono', monospace;
 }
 
+/* Light Mode */
+body.light-mode {
+  --color-bg: #f8f8f8;
+  --color-bg-secondary: #ffffff;
+  --color-bg-tertiary: #f0f0f0;
+  --color-surface: #e8e8e8;
+  --color-border: #d0d0d0;
+  
+  --color-text: #121213;
+  --color-text-muted: #666666;
+  --color-text-dim: #999999;
+  
+  --color-primary: #538d4e;
+  --color-primary-hover: #6aaa64;
+  --color-secondary: #9d8e1f;
+  --color-secondary-hover: #b59f3b;
+  --color-error: #c23a3a;
+  --color-info: #3a7bc2;
+  
+  /* Git graph colors */
+  --color-branch-main: #538d4e;
+  --color-branch-feature: #3a7bc2;
+  --color-branch-hotfix: #c23a3a;
+  --color-commit: #666666;
+  --color-head: #22c55e;
+  --color-file: #3b82f6;
+  --color-file-collected: #22c55e;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+}
+
 /* ============================================
    Reset & Base Styles
    ============================================ */
@@ -71,6 +105,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
 body {
@@ -79,6 +114,8 @@ body {
   color: var(--color-text);
   line-height: 1.5;
   min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
 a {
@@ -164,6 +201,24 @@ button {
   padding: var(--spacing-sm);
 }
 
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-toggle:hover {
+  background-color: var(--color-surface);
+}
+
 .mobile-nav {
   display: none;
   flex-direction: column;
@@ -215,6 +270,20 @@ button {
   font-size: 1rem;
   font-weight: 600;
   transition: all var(--transition-fast);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn:hover:not(:disabled) {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+  backdrop-filter: blur(12px);
+}
+
+.btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .btn:disabled {
@@ -223,21 +292,25 @@ button {
 }
 
 .btn-primary {
-  background-color: var(--color-primary);
+  background: linear-gradient(135deg, rgba(83, 141, 78, 0.9), rgba(106, 170, 100, 0.9));
   color: white;
+  border: 1px solid rgba(106, 170, 100, 0.5);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background-color: var(--color-primary-hover);
+  background: linear-gradient(135deg, rgba(106, 170, 100, 1), rgba(130, 200, 130, 1));
+  border: 1px solid rgba(130, 200, 130, 0.7);
 }
 
 .btn-secondary {
-  background-color: var(--color-surface);
+  background: rgba(100, 100, 100, 0.3);
   color: var(--color-text);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: var(--color-border);
+  background: rgba(100, 100, 100, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .btn-large {
@@ -257,18 +330,27 @@ button {
 .select {
   width: 100%;
   padding: var(--spacing-sm) var(--spacing-md);
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: var(--radius-md);
   color: var(--color-text);
   font-size: 1rem;
-  transition: border-color var(--transition-fast);
+  transition: all var(--transition-fast);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.input::placeholder {
+  color: var(--color-text-muted);
 }
 
 .input:focus,
 .select:focus {
   outline: none;
   border-color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 20px rgba(83, 141, 78, 0.3);
+  backdrop-filter: blur(12px);
 }
 
 .select {
@@ -422,43 +504,186 @@ button {
    Game Page
    ============================================ */
 .game-page {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
 }
 
 .game-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.game-content > * {
+  pointer-events: auto;
 }
 
 .game-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  z-index: 30;
+  padding: var(--spacing-lg);
+  max-width: 500px;
+  background: rgba(18, 18, 19, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
-.puzzle-info h2 {
-  font-size: 1.25rem;
+.graph-section {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: auto;
+  padding: 0;
+  z-index: 1;
+  opacity: 0.35;
+  touch-action: pinch-zoom;
 }
 
-.difficulty {
-  color: var(--color-secondary);
+.graph-section svg {
+  user-select: none;
+  touch-action: pinch-zoom;
 }
 
-.file-progress {
-  background-color: var(--color-surface);
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--radius-md);
+.command-section {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 700px;
+  z-index: 25;
+  padding: 0 var(--spacing-lg);
+}
+
+.command-section > div {
+  background: rgba(18, 18, 19, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: var(--spacing-lg);
+}
+
+.history-section {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 100%;
+  max-width: 350px;
+  z-index: 25;
+  background: rgba(18, 18, 19, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .start-game-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 25;
+  width: 100%;
+  max-width: 600px;
+  padding: 0 var(--spacing-lg);
+}
+
+.start-game-container > div {
+  background: rgba(18, 18, 19, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.clone-prompt {
+  text-align: center;
+  background-color: var(--color-bg-secondary);
+  padding: var(--spacing-xl);
+  border-radius: var(--radius-lg);
+  max-width: 500px;
+  width: 100%;
+}
+
+.clone-prompt h2 {
+  margin-bottom: var(--spacing-md);
+}
+
+.clone-instruction {
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-sm);
+}
+
+.clone-url {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--color-info);
+  background-color: var(--color-bg);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-lg);
+  user-select: all;
+}
+
+.clone-form {
   display: flex;
-  justify-content: center;
-  padding: var(--spacing-2xl);
+  flex-direction: column;
+  gap: var(--spacing-md);
+  align-items: center;
+}
+
+.terminal-input {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background-color: var(--color-bg);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  width: 100%;
+  transition: border-color var(--transition-fast);
+}
+
+.terminal-input:focus-within {
+  border-color: var(--color-primary);
+}
+
+.terminal-prompt {
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-weight: bold;
+}
+
+.clone-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  outline: none;
+}
+
+.clone-input::placeholder {
+  color: var(--color-text-dim);
+}
+
+.clone-error {
+  color: var(--color-error);
+  font-size: 0.875rem;
 }
 
 .game-completed {
@@ -574,6 +799,79 @@ button {
   color: var(--color-error);
 }
 
+.input-mode-toggle {
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.toggle-label input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+}
+
+.typing-input-section {
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.typing-hint {
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.typing-input-group {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background-color: var(--color-bg);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border);
+  transition: border-color var(--transition-fast);
+}
+
+.typing-input-group:focus-within {
+  border-color: var(--color-primary);
+}
+
+.terminal-prompt {
+  color: var(--color-primary);
+  font-family: var(--font-mono);
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.typing-input {
+  flex: 1;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.typing-input::placeholder {
+  color: var(--color-text-dim);
+}
+
 .command-buttons {
   display: flex;
   gap: var(--spacing-sm);
@@ -628,12 +926,6 @@ button {
 /* ============================================
    Command History
    ============================================ */
-.history-section {
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-lg);
-}
-
 .history-section h3 {
   margin-bottom: var(--spacing-md);
 }
@@ -642,8 +934,9 @@ button {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
+  padding: var(--spacing-md);
 }
 
 .empty-history {

@@ -1,5 +1,7 @@
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUserPrefsStore } from '../stores';
+import { Leaf, Target, Code, AlertCircle, Trophy } from 'lucide-react';
 
 interface TutorialProps {
   onComplete: () => void;
@@ -7,43 +9,43 @@ interface TutorialProps {
 
 const tutorialSteps = [
   {
-    title: 'Welcome to HacknRoll26! 🌿',
+    title: 'Welcome to HacknRoll26!',
     content: `This is a daily puzzle game where you use Git commands to collect files 
               and merge them to the main branch. Think of it like Wordle, but for Git!`,
-    icon: '👋',
+    icon: Leaf,
   },
   {
-    title: 'The Goal 🎯',
+    title: 'The Goal',
     content: `Collect all the files scattered across different branches and depths, 
               then merge everything back to the main branch. You win when all files 
               are collected and merged!`,
-    icon: '🎯',
+    icon: Target,
   },
   {
-    title: 'Git Commands 💻',
+    title: 'Git Commands',
     content: `You can use these commands:
               • commit - Create a new commit (may collect a file)
               • branch - Create a new branch at current position
               • checkout - Move to a different branch or commit
               • merge - Merge another branch into current
               • rebase - Rebase current branch onto another`,
-    icon: '💻',
+    icon: Code,
   },
   {
-    title: 'Constraints ⚠️',
+    title: 'Constraints',
     content: `Each puzzle has limits:
               • Maximum total commands allowed
               • Maximum checkouts allowed
               • Maximum consecutive commits (encourages rebasing!)
               Try to solve it in as few commands as possible!`,
-    icon: '⚠️',
+    icon: AlertCircle,
   },
   {
-    title: 'Scoring 🏆',
+    title: 'Scoring',
     content: `Your score is based on how close you are to the optimal solution. 
               The fewer commands you use, the better your score. Compete on the 
               daily leaderboard!`,
-    icon: '🏆',
+    icon: Trophy,
   },
 ];
 
@@ -84,7 +86,9 @@ export function Tutorial({ onComplete }: TutorialProps) {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
           >
-            <div className="tutorial-icon">{step.icon}</div>
+            <div className="tutorial-icon">
+              {React.createElement(step.icon, { size: 48 })}
+            </div>
             <h2 className="tutorial-title">{step.title}</h2>
             <p className="tutorial-text">{step.content}</p>
           </motion.div>
@@ -113,5 +117,3 @@ export function Tutorial({ onComplete }: TutorialProps) {
     </div>
   );
 }
-
-import { useState } from 'react';

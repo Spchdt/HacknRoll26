@@ -133,6 +133,7 @@ const mockArchive: ArchivePuzzle[] = Array.from({ length: 30 }, (_, i) => {
 // ============================================
 
 let currentGameState = { ...mockGameState };
+let stateHistory: GameState[] = []; // Stack of previous states for undo
 let commitCounter = 3;
 
 function delay(ms: number): Promise<void> {
@@ -148,12 +149,18 @@ function cloneState(state: GameState): GameState {
   return JSON.parse(JSON.stringify(state));
 }
 
+// Save current state before making changes
+function saveStateForUndo(): void {
+  stateHistory.push(cloneState(currentGameState));
+}
+
 export const mockApi = {
   async startGame(puzzleId: string): Promise<StartGameResponse> {
     await delay(300);
     
-    // Reset commit counter
+    // Reset commit counter and history
     commitCounter = 3;
+    stateHistory = [];
     
     // Reset game state for a fresh start
     currentGameState = {
@@ -181,19 +188,22 @@ export const mockApi = {
   async sendCommand(_gameId: string, command: GameCommand): Promise<CommandResponse> {
     await delay(150);
     
+    // Handle undo - restore previous state
+    if (command.type === 'undo') {
+      if (stateHistory.length === 0) {
+        return { state: cloneState(currentGameState), error: 'Nothing to undo' };
+      }
+      // Pop and restore the previous state
+      currentGameState = stateHistory.pop()!;
+      return { state: cloneState(currentGameState) };
+    }
+    
+    // Save current state before making any changes
+    saveStateForUndo();
+    
     const state = currentGameState;
     const graph = state.graph!;
     const puzzle = state.puzzle!;
-    
-    // Handle undo
-    if (command.type === 'undo') {
-      if (state.commandHistory.length === 0) {
-        return { state: cloneState(state), error: 'Nothing to undo' };
-      }
-      state.commandHistory.pop();
-      state.commandCount = Math.max(0, state.commandCount - 1);
-      return { state: cloneState(state) };
-    }
     
     // Add command to history
     state.commandHistory.push(command);
@@ -315,7 +325,75 @@ export const mockApi = {
       }
       
       case 'rebase': {
-        // Simplified rebase - just reset consecutive commits
+        const currentBranch = graph.head.type === 'attached' ? graph.head.ref : null;
+        if (!currentBranch) {
+          return { state: cloneState(state), error: 'Cannot rebase in detached HEAD state' };
+        }
+        
+        const targetBranch = graph.branches[command.onto];
+        if (!targetBranch) {
+          return { state: cloneState(state), error: `Branch ${command.onto} not found` };
+        }
+        
+        if (currentBranch === command.onto) {
+          return { state: cloneState(state), error: 'Cannot rebase onto same branch' };
+        }
+        
+        // Find commits unique to current branch (simplified: just get commits on this branch)
+        const currentTipId = graph.branches[currentBranch].tipCommitId;
+        const targetTipId = targetBranch.tipCommitId;
+        const targetTip = graph.commits[targetTipId];
+        
+        // Get all commits on current branch that need to be rebased
+        const commitsToRebase: string[] = [];
+        let commitId = currentTipId;
+        while (commitId && graph.commits[commitId]) {
+          const commit = graph.commits[commitId];
+          if (commit.branch === currentBranch && commit.parents.length > 0) {
+            commitsToRebase.unshift(commitId); // Add to front to preserve order
+          }
+          commitId = commit.parents[0]; // Follow first parent
+        }
+        
+        if (commitsToRebase.length === 0) {
+          // No commits to rebase, just move branch pointer
+          graph.branches[currentBranch].tipCommitId = targetTipId;
+          state.consecutiveCommits = 0;
+          break;
+        }
+        
+        // Create new commits on top of target branch
+        let newParentId = targetTipId;
+        let newDepth = targetTip.depth;
+        
+        for (const oldCommitId of commitsToRebase) {
+          const oldCommit = graph.commits[oldCommitId];
+          const newCommitId = generateCommitId();
+          newDepth++;
+          
+          graph.commits[newCommitId] = {
+            id: newCommitId,
+            message: oldCommit.message,
+            parents: [newParentId],
+            branch: currentBranch,
+            depth: newDepth,
+            timestamp: Date.now(),
+          };
+          
+          // Check for file collection at new position
+          const collectedFile = puzzle.fileTargets.find(
+            (f) => f.branch === currentBranch && f.depth === newDepth && !f.collected
+          );
+          if (collectedFile) {
+            collectedFile.collected = true;
+            state.collectedFiles.push(collectedFile.id);
+          }
+          
+          newParentId = newCommitId;
+        }
+        
+        // Update branch to point to new tip
+        graph.branches[currentBranch].tipCommitId = newParentId;
         state.consecutiveCommits = 0;
         break;
       }
