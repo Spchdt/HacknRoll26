@@ -156,7 +156,7 @@ export function calculateScore(commandsUsed: number, parScore: number): number {
 }
 
 // Get difficulty label with color
-export function getDifficultyInfo(difficulty: 'easy' | 'medium' | 'hard'): { label: string; color: string } {
+export function getDifficultyInfo(difficulty: 'easy' | 'medium' | 'hard' | string | undefined): { label: string; color: string } {
   switch (difficulty) {
     case 'easy':
       return { label: 'Easy', color: 'text-green-600 bg-green-100' };
@@ -164,6 +164,8 @@ export function getDifficultyInfo(difficulty: 'easy' | 'medium' | 'hard'): { lab
       return { label: 'Medium', color: 'text-yellow-600 bg-yellow-100' };
     case 'hard':
       return { label: 'Hard', color: 'text-red-600 bg-red-100' };
+    default:
+      return { label: difficulty || 'Unknown', color: 'text-gray-600 bg-gray-100' };
   }
 }
 

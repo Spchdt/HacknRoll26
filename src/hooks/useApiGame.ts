@@ -6,12 +6,101 @@ import type {
   GameRewards,
   CommandResponse,
   StartGameResponse,
+  GitGraph,
+  FileTarget,
 } from '@/lib/types';
 import { api } from '@/lib/api';
 
+// Branch colors for UI
+const BRANCH_COLORS: Record<string, string> = {
+  main: '#F59E0B',
+  master: '#3B82F6',
+  feature: '#A855F7',
+  develop: '#84CC16',
+  'feature-a': '#A855F7',
+  'feature-b': '#EC4899',
+  'feature-c': '#14B8A6',
+  hotfix: '#EF4444',
+};
+
+const DEFAULT_COLORS = ['#F59E0B', '#A855F7', '#3B82F6', '#84CC16', '#EC4899', '#14B8A6'];
+
+/**
+ * Transform API game state to the format expected by GitGraph component
+ */
+function transformApiGameState(apiState: any, apiPuzzle: any): { graph: GitGraph; files: FileTarget[] } {
+  // Transform commits: API returns object, we need Map-like structure
+  const commits = new Map();
+  if (apiState.graph?.commits) {
+    const commitsObj = apiState.graph.commits;
+    Object.values(commitsObj).forEach((commit: any, idx: number) => {
+      commits.set(commit.id, {
+        id: commit.id,
+        message: commit.message,
+        parentIds: commit.parents || [],
+        branch: commit.branch || 'main',
+        depth: commit.depth ?? idx,
+        timestamp: commit.timestamp || Date.now(),
+      });
+    });
+  }
+
+  // Transform branches: API returns object, we need Map-like structure
+  const branches = new Map();
+  if (apiState.graph?.branches) {
+    const branchesObj = apiState.graph.branches;
+    Object.entries(branchesObj).forEach(([name, branch]: [string, any], idx) => {
+      branches.set(name, {
+        name: branch.name || name,
+        tipCommitId: branch.tipCommitId || branch,
+        color: BRANCH_COLORS[name] || DEFAULT_COLORS[idx % DEFAULT_COLORS.length],
+      });
+    });
+  }
+
+  // Determine head reference
+  let headRef = 'main';
+  let isDetached = false;
+  if (apiState.graph?.head) {
+    if (typeof apiState.graph.head === 'string') {
+      headRef = apiState.graph.head;
+    } else if (apiState.graph.head.type === 'attached') {
+      headRef = apiState.graph.head.ref;
+      isDetached = false;
+    } else if (apiState.graph.head.type === 'detached') {
+      headRef = apiState.graph.head.ref;
+      isDetached = true;
+    }
+  }
+
+  const graph: GitGraph = {
+    commits,
+    branches,
+    headRef,
+    isDetached,
+  };
+
+  // Transform file targets from puzzle
+  const collectedSet = new Set(apiState.collectedFiles || []);
+  const files: FileTarget[] = (apiPuzzle?.fileTargets || []).map((target: any, idx: number) => ({
+    id: target.id || `file-${idx}`,
+    name: target.fileName || target.name,
+    branch: target.branch,
+    depth: target.depth,
+    collected: target.collected || collectedSet.has(target.fileName || target.name),
+  }));
+
+  return { graph, files };
+}
+
+interface TransformedGameState extends ApiGameState {
+  graph: GitGraph;
+  files: FileTarget[];
+}
+
 interface UseApiGameReturn {
   // State
-  gameState: ApiGameState | null;
+  gameState: TransformedGameState | null;
   puzzle: Puzzle | null;
   isLoading: boolean;
   error: string | null;
@@ -38,14 +127,14 @@ interface UseApiGameReturn {
  */
 export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
   const [gameId, setGameId] = useState<string>(initialGameId);
-  const [gameState, setGameState] = useState<ApiGameState | null>(null);
+  const [gameState, setGameState] = useState<TransformedGameState | null>(null);
   const [puzzle, setPuzzle] = useState<Puzzle | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [rewards, setRewards] = useState<GameRewards | null>(null);
   const [output, setOutput] = useState<string[]>([
-    '🎮 Welcome to Gitty!',
+    'Welcome to Gitty!',
     'Type "git init" to start the daily puzzle.',
     '',
   ]);
@@ -60,40 +149,52 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
     setGameId(id);
     setRewards(null);
     
-    setOutput(prev => [...prev, `$ git init`, `🔄 Initializing game session...`]);
+    setOutput(prev => [...prev, `$ git init`, `Initializing game session...`]);
     
     try {
       const response: StartGameResponse = await api.startGame(id);
       
       if (response.success && response.gameState && response.puzzle) {
-        setGameState(response.gameState);
+        // Transform API response to frontend format
+        const { graph, files } = transformApiGameState(response.gameState, response.puzzle);
+        const transformedState: TransformedGameState = {
+          ...response.gameState,
+          graph,
+          files,
+          commandsUsed: response.gameState.commandHistory?.length || 0,
+          parScore: response.puzzle.parScore,
+          status: (response.gameState as any).status === 'in_progress' ? 'playing' : 
+                  (response.gameState as any).status === 'completed' ? 'won' : 'playing',
+        };
+        
+        setGameState(transformedState);
         setPuzzle(response.puzzle);
         setIsCompleted(response.isCompleted ?? false);
         
         setOutput(prev => [
           ...prev,
-          `✅ Initialized git repository`,
+          `Initialized git repository`,
           '',
-          `📋 Puzzle: ${response.puzzle!.title}`,
-          `📝 ${response.puzzle!.description}`,
-          `⭐ Par: ${response.puzzle!.parScore} commands`,
-          `🎯 Difficulty: ${response.puzzle!.difficulty}`,
+          `Puzzle: ${response.puzzle!.id}`,
+          `Date: ${response.puzzle!.date || 'Daily'}`,
+          `Par: ${response.puzzle!.parScore} commands`,
+          `Difficulty: Level ${response.puzzle!.difficultyLevel || response.puzzle!.difficulty}`,
           '',
         ]);
         
         // If already completed, set rewards
         if (response.isCompleted && response.rewards) {
           setRewards(response.rewards);
-          setOutput(prev => [...prev, `🏆 You've already completed this puzzle!`, '']);
+          setOutput(prev => [...prev, `You've already completed this puzzle!`, '']);
         }
       } else {
         setError(response.error || 'Failed to start game');
-        setOutput(prev => [...prev, `❌ Error: ${response.error || 'Failed to start game'}`, '']);
+        setOutput(prev => [...prev, `Error: ${response.error || 'Failed to start game'}`, '']);
       }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to start game';
       setError(errorMsg);
-      setOutput(prev => [...prev, `❌ Error: ${errorMsg}`, '']);
+      setOutput(prev => [...prev, `Error: ${errorMsg}`, '']);
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +210,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
     setRewards(null);
     setError(null);
     setOutput([
-      '🎮 Welcome to Gitty!',
+      'Welcome to Gitty!',
       'Type "git init" to start the daily puzzle.',
       '',
     ]);
@@ -121,7 +222,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
    * @returns The rewards if the game is completed, null otherwise
    */
   const executeCommand = useCallback(async (command: Command): Promise<GameRewards | null> => {
-    if (!gameState) {
+    if (!gameState || !puzzle) {
       throw new Error('No active game session. Type "git init" to start.');
     }
 
@@ -132,7 +233,19 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       const response: CommandResponse = await api.sendCommand(gameId, command);
       
       if (response.success && response.gameState) {
-        setGameState(response.gameState);
+        // Transform API response to frontend format
+        const { graph, files } = transformApiGameState(response.gameState, puzzle);
+        const transformedState: TransformedGameState = {
+          ...response.gameState,
+          graph,
+          files,
+          commandsUsed: response.gameState.commandHistory?.length || 0,
+          parScore: puzzle.parScore,
+          status: (response.gameState as any).status === 'in_progress' ? 'playing' : 
+                  (response.gameState as any).status === 'completed' ? 'won' : 'playing',
+        };
+        
+        setGameState(transformedState);
         setIsCompleted(response.isCompleted ?? false);
         
         // Check for completion
@@ -152,7 +265,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [gameState, gameId]);
+  }, [gameState, gameId, puzzle]);
 
   /**
    * Execute a git command from a string (parses the command)
@@ -172,7 +285,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       setOutput(prev => [
         ...prev,
         `$ ${commandString}`,
-        `❌ Error: No active game session. Type "git init" to start.`,
+        `Error: No active game session. Type "git init" to start.`,
         '',
       ]);
       return null;
@@ -184,7 +297,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       setOutput(prev => [
         ...prev,
         `$ ${commandString}`,
-        `❌ Error: Unknown command. Supported: commit, branch, checkout, merge, rebase, undo`,
+        `Error: Unknown command. Supported: commit, branch, checkout, merge, rebase, undo`,
         '',
       ]);
       return null;
@@ -196,25 +309,25 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       const result = await executeCommand(command);
       
       // Build success message based on command type
-      let successMsg = '✅ ';
+      let successMsg = '';
       switch (command.type) {
         case 'commit':
-          successMsg += `Created commit: "${command.message}"`;
+          successMsg = `Created commit: "${command.message}"`;
           break;
         case 'branch':
-          successMsg += `Created branch: ${command.name}`;
+          successMsg = `Created branch: ${command.name}`;
           break;
         case 'checkout':
-          successMsg += `Switched to: ${command.target}`;
+          successMsg = `Switched to: ${command.target}`;
           break;
         case 'merge':
-          successMsg += `Merged branch: ${command.branch}`;
+          successMsg = `Merged branch: ${command.branch}`;
           break;
         case 'rebase':
-          successMsg += `Rebased onto: ${command.onto}`;
+          successMsg = `Rebased onto: ${command.onto}`;
           break;
         case 'undo':
-          successMsg += `Undid last command`;
+          successMsg = `Undid last command`;
           break;
       }
       
@@ -224,10 +337,10 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       if (result) {
         setOutput(prev => [
           ...prev,
-          '🎉 Congratulations! Puzzle completed!',
-          `📊 Score: ${result.score} points`,
-          `⌨️ Commands used: ${result.commandsUsed} (par: ${result.parScore})`,
-          `${result.performance === 'under_par' ? '🏆 Under par!' : result.performance === 'at_par' ? '✨ At par!' : '📈 Over par'}`,
+          'Congratulations! Puzzle completed!',
+          `Score: ${result.score} points`,
+          `Commands used: ${result.commandsUsed} (par: ${result.parScore})`,
+          `${result.performance === 'under_par' ? 'Under par!' : result.performance === 'at_par' ? 'At par!' : 'Over par'}`,
           '',
         ]);
       }
@@ -235,7 +348,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       return result;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Command failed';
-      setOutput(prev => [...prev, `❌ Error: ${errorMsg}`, '']);
+      setOutput(prev => [...prev, `Error: ${errorMsg}`, '']);
       return null;
     }
   }, [gameState, gameId, startGame, executeCommand]);

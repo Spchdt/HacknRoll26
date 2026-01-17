@@ -127,17 +127,28 @@ export interface GameRewards {
 
 export interface Puzzle {
   id: string;
-  title: string;
-  description: string;
-  difficulty: 'easy' | 'medium' | 'hard';
-  tags: string[];
-  initialState: ApiGameState;
-  targetState: ApiGameState;
+  title?: string;
+  description?: string;
+  difficulty?: 'easy' | 'medium' | 'hard';
+  difficultyLevel?: number; // API returns this instead of difficulty
+  date?: string; // API returns date for daily puzzles
+  tags?: string[];
+  initialState?: ApiGameState;
+  targetState?: ApiGameState;
   parScore: number;
-  hints: string[];
+  hints?: string[];
   solution?: PuzzleSolution;
-  createdAt: string; // ISO 8601
+  createdAt?: string; // ISO 8601
   constraints?: PuzzleConstraints;
+  fileTargets?: FileTargetApi[]; // API returns file targets
+}
+
+// File target from API
+export interface FileTargetApi {
+  branch: string;
+  depth: number;
+  fileName: string;
+  collected: boolean;
 }
 
 export interface PuzzleSolution {
@@ -185,6 +196,28 @@ export interface LeaderboardEntry {
   username: string;
   score: number;
   gamesPlayed: number;
+}
+
+// ============================================
+// Archive Types
+// ============================================
+
+export interface ArchivedGame {
+  id: string;
+  puzzleId: string;
+  title: string;
+  difficultyLevel: number;
+  status: 'completed' | 'abandoned' | 'in_progress';
+  score: number;
+  parScore: number;
+  commandsUsed: number;
+  performance: 'under_par' | 'at_par' | 'over_par';
+  completedAt: string;
+}
+
+export interface ArchiveResponse {
+  success: boolean;
+  data: ArchivedGame[];
 }
 
 // ============================================

@@ -32,7 +32,7 @@ export default function CommandHistory({
     >
       {output.length === 0 && commands.length === 0 ? (
         <div className='text-gray-500'>
-          <p>Welcome to Gitty! 🎮</p>
+          <p>Welcome to Gitty!</p>
           <p className="mt-1">Type git commands to play. Try:</p>
           <p className='mt-1 text-green-400'>$ git commit -m "first"</p>
         </div>

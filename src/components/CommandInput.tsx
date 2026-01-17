@@ -12,12 +12,13 @@ interface CommandInputProps {
 }
 
 const COMMAND_SUGGESTIONS = [
+  'git init',
   'git commit -m "message"',
   'git checkout <branch>',
   'git branch <name>',
   'git merge <branch>',
   'git rebase <branch>',
-  'git undo',
+  'undo',
 ];
 
 export default function CommandInput({
@@ -178,7 +179,7 @@ export default function CommandInput({
             type="button"
             onClick={() => {
               if (cmd === 'undo') {
-                setCommand('git undo');
+                setCommand('undo');
               } else if (cmd === 'commit') {
                 setCommand('git commit -m "');
               } else {

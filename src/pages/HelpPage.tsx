@@ -76,9 +76,9 @@ const HELP_SECTIONS: HelpSection[] = [
           example="git rebase main"
         />
         <CommandHelp
-          command="git undo"
+          command="undo"
           description="Undo your last command. You can undo multiple times to go back further."
-          example="git undo"
+          example="undo"
         />
       </div>
     ),
@@ -255,7 +255,7 @@ export default function HelpPage() {
           </div>
           <div className="flex items-center gap-2">
             <RotateCcw size={14} className="text-gray-400" />
-            <span>git undo</span>
+            <span>undo</span>
           </div>
         </div>
       </div>

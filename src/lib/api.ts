@@ -6,6 +6,7 @@ import type {
   LeaderboardResponse,
   UserProfileResponse,
   BaseResponse,
+  ArchiveResponse,
 } from './types';
 
 // API base URL from documentation
@@ -26,9 +27,9 @@ class ApiClient {
     const url = `${this.baseUrl}${endpoint}`;
     const method = options.method || 'GET';
     
-    console.log(`🔄 [${method}] Connecting to ${endpoint}...`);
+    console.log(`[${method}] Connecting to ${endpoint}...`);
     if (options.body) {
-      console.log('📤 Request body:', JSON.parse(options.body as string));
+      console.log('Request body:', JSON.parse(options.body as string));
     }
     
     try {
@@ -43,17 +44,17 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error(`❌ [${method}] ${endpoint} failed: ${response.status} ${data.error || 'Unknown error'}`);
-        console.log('📦 Response data:', data);
+        console.error(`[${method}] ${endpoint} failed: ${response.status} ${data.error || 'Unknown error'}`);
+        console.log('Response data:', data);
         throw new Error(data.error || 'Request failed');
       }
 
-      console.log(`✅ [${method}] ${endpoint} success`);
-      console.log('📦 Response data:', data);
+      console.log(`[${method}] ${endpoint} success`);
+      console.log('Response data:', data);
       return data;
     } catch (error) {
       if (error instanceof TypeError && error.message.includes('fetch')) {
-        console.error(`❌ [${method}] ${endpoint} - Network error: Unable to connect to server`);
+        console.error(`[${method}] ${endpoint} - Network error: Unable to connect to server`);
         throw new Error('Network error: Unable to connect to server');
       }
       throw error;
@@ -125,8 +126,17 @@ class ApiClient {
   }
 
   async getLeaderboard(): Promise<LeaderboardResponse> {
-    console.log('🏆 Fetching leaderboard...');
+    console.log('Fetching leaderboard...');
     return this.request('/leaderboard');
+  }
+
+  // ============================================
+  // Archive Endpoints
+  // ============================================
+
+  async getArchive(): Promise<ArchiveResponse> {
+    console.log('Fetching puzzle archive...');
+    return this.request('/game/archive');
   }
 }
 

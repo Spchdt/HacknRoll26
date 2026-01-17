@@ -68,7 +68,7 @@ export default function FileTracker({ files, className }: FileTrackerProps) {
         {/* Win condition hint */}
         {allCollected && (
           <div className="text-sm text-amber-600 font-medium">
-            ✨ Merge to main to win!
+            Merge to main to win!
           </div>
         )}
       </div>

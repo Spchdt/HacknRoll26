@@ -82,10 +82,10 @@ export default function GamePage() {
   const handleShare = () => {
     if (!gameState || !gameReward) return;
     
-    const text = `🎮 Gitty - Daily Puzzle
-📊 Score: ${gameReward.score}
-⌨️ Commands: ${gameState.commandsUsed ?? 0}/${gameState.parScore ?? '?'} par
-${(gameReward.commandsUnderPar ?? 0) > 0 ? `🏆 ${gameReward.commandsUnderPar} under par!` : ''}
+    const text = `Gitty - Daily Puzzle
+Score: ${gameReward.score}
+Commands: ${gameState.commandsUsed ?? 0}/${gameState.parScore ?? '?'} par
+${(gameReward.commandsUnderPar ?? 0) > 0 ? `${gameReward.commandsUnderPar} under par!` : ''}
 
 Play at: [your-url]`;
     
@@ -114,7 +114,7 @@ Play at: [your-url]`;
                 gameState.status === 'playing' && 'text-green-600',
                 gameState.status === 'won' && 'text-blue-600'
               )}>
-                {gameState.status === 'playing' && 'In Progress'}
+                {gameState.status === 'playing' && 'Playing'}
                 {gameState.status === 'won' && 'Completed!'}
                 {gameState.status === 'abandoned' && 'Abandoned'}
               </span>
@@ -159,9 +159,27 @@ Play at: [your-url]`;
             </div>
             {(gameState.files ?? []).every((f: any) => f.collected) && (
               <div className="mt-2 text-xs text-amber-600 font-medium">
-                ✨ Merge to main!
+                Merge to main!
               </div>
             )}
+          </div>
+
+          {/* Legend */}
+          <div className="bg-white border rounded-lg px-3 py-2 text-xs space-y-1">
+            <span className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-green-500" />
+              Collected
+            </span>
+            <span className="flex items-center gap-2">
+              <svg width="12" height="14" viewBox="0 0 12 14" className="text-amber-500">
+                <rect x="1" y="1" width="10" height="12" rx="1" fill="none" stroke="currentColor" strokeWidth="1.5" strokeDasharray="3,2" />
+              </svg>
+              Target
+            </span>
+            <span className="flex items-center gap-2">
+              <span className="text-[10px] font-bold">HEAD</span>
+              Current
+            </span>
           </div>
 
           {/* Action buttons */}
@@ -185,37 +203,31 @@ Play at: [your-url]`;
       )}
 
       {/* Main content area */}
-      <div className="flex-1 flex flex-col gap-3 min-w-0">
+      <div className={cn(
+        "flex-1 flex flex-col gap-3 min-w-0",
+        !gameState && "justify-center"
+      )}>
         {/* Git Graph Visualization */}
-        <div className="flex-1 min-h-[150px]">
-          {isLoading ? (
-            <GitGraphSkeleton className="h-full" />
-          ) : gameState ? (
-            <GitGraph
-              graph={gameState.graph ?? { nodes: [], edges: [] }}
-              files={gameState.files ?? []}
-              className="h-full"
-            />
-          ) : (
-            <div className={cn('h-full border-2 border-dashed rounded-lg flex flex-col items-center justify-center p-8', isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-gray-50 border-gray-300')}>
-              <div className="text-center">
-                <p className={cn('text-lg mb-2', isDarkMode ? 'text-gray-300' : 'text-gray-600')}>
-                  🎮 Welcome to Gitty!
-                </p>
-                <p className={cn('mb-4', isDarkMode ? 'text-gray-400' : 'text-gray-500')}>
-                  Type <code className={cn('px-2 py-1 rounded font-mono', isDarkMode ? 'bg-gray-700 text-gray-200' : 'bg-gray-200 text-gray-800')}>git init</code> in the terminal below to start the daily puzzle
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
+        {(isLoading || gameState?.graph) && (
+          <div className="flex-1 min-h-[120px]">
+            {isLoading ? (
+              <GitGraphSkeleton className="h-full" />
+            ) : gameState?.graph ? (
+              <GitGraph
+                graph={gameState.graph}
+                files={gameState.files ?? []}
+                className="h-full"
+              />
+            ) : null}
+          </div>
+        )}
 
         {/* Command terminal area */}
         <div className="space-y-2 shrink-0">
           <CommandHistory
             commands={gameState?.commandHistory ?? []}
             output={output}
-            className="h-28 md:h-36"
+            className="h-32 md:h-40"
           />
           <CommandInput
             onSubmit={handleCommand}

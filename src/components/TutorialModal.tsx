@@ -8,36 +8,36 @@ interface TutorialModalProps {
 
 const TUTORIAL_STEPS = [
   {
-    title: 'Welcome to Gitty! 🎮',
+    title: 'Welcome to Gitty',
     content:
       'Gitty is a puzzle game where you use git commands to collect files scattered across branches and merge them to main.',
     icon: GitBranch,
   },
   {
-    title: 'The Goal 🎯',
+    title: 'The Goal',
     content:
       'Collect all target files by creating commits at specific branch/depth locations, then merge everything to the main branch to win!',
     icon: GitCommit,
   },
   {
-    title: 'Basic Commands 💻',
+    title: 'Basic Commands',
     content: `Use these git commands:
 • git commit -m "message" - Create a commit
 • git branch <name> - Create a new branch
 • git checkout <target> - Switch branches
 • git merge <branch> - Merge a branch
 • git rebase <branch> - Rebase onto a branch
-• git undo - Undo last command`,
+• undo - Undo last command`,
     icon: GitMerge,
   },
   {
-    title: 'Collecting Files 📁',
+    title: 'Collecting Files',
     content:
       'Files appear at specific positions (branch + depth). When you commit at that exact position, you collect the file!',
     icon: GitBranch,
   },
   {
-    title: 'Par Score ⭐',
+    title: 'Par Score',
     content:
       'Each puzzle has a "par" score - the minimum commands needed. Beat par for bonus points! Use the undo command to try different strategies.',
     icon: RotateCcw,
