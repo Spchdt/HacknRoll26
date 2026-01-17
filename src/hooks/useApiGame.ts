@@ -26,6 +26,8 @@ interface UseApiGameReturn {
   
   // Game end
   rewards: GameRewards | null;
+  gameReward: GameRewards | null; // Alias for rewards
+  isGameEnded: boolean; // Alias for isCompleted
 }
 
 /**
@@ -250,6 +252,8 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
     executeCommandString,
     resetGame,
     rewards,
+    gameReward: rewards,
+    isGameEnded: isCompleted,
   };
 }
 

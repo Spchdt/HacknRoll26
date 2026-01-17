@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Calendar, ArrowRight, Clock, Star } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar, ArrowRight, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn, getDifficultyInfo, formatDate } from '@/lib/utils';
 

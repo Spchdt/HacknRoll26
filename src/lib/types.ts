@@ -20,6 +20,15 @@ export interface ApiGameState {
   head: string;
   /** The currently active branch name, or null if in detached HEAD state */
   currentBranch: string | null;
+  
+  // Local game state properties (added on client-side)
+  commandsUsed?: number;
+  parScore?: number;
+  status?: 'playing' | 'won' | 'abandoned';
+  undoStack?: any[];
+  files?: any[];
+  graph?: any;
+  commandHistory?: string[];
 }
 
 // ============================================
@@ -127,6 +136,7 @@ export interface Puzzle {
   hints: string[];
   solution?: PuzzleSolution;
   createdAt: string; // ISO 8601
+  constraints?: PuzzleConstraints;
 }
 
 export interface PuzzleSolution {
