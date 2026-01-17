@@ -9395,7 +9395,7 @@
       "id": "1768651703724",
       "project": "HacknRoll26",
       "start": "2026-01-17T12:08:23.724Z",
-      "end": "2026-01-17T12:08:23.724Z"
+      "end": "2026-01-17T12:11:09.016Z"
     }
   },
   {
@@ -9409,6 +9409,472 @@
       "changedLines": [
         1
       ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:10:53.437Z",
+    "data": {
+      "id": "1768651853437",
+      "timestamp": "2026-01-17T12:10:53.437Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/ArchivePage.tsx",
+      "changedLines": [
+        0
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:10:53.448Z",
+    "data": {
+      "id": "1768651853448",
+      "timestamp": "2026-01-17T12:10:53.448Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/hooks/useApiGame.ts",
+      "changedLines": [
+        28,
+        252
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:10:59.994Z",
+    "data": {
+      "id": "1768651859994",
+      "timestamp": "2026-01-17T12:10:59.994Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/lib/types.ts",
+      "changedLines": [
+        22
+      ]
+    }
+  },
+  {
+    "type": "session",
+    "timestamp": "2026-01-17T12:11:09.016Z",
+    "data": {
+      "id": "1768651703724",
+      "project": "HacknRoll26",
+      "start": "2026-01-17T12:08:23.724Z",
+      "end": "2026-01-17T12:11:09.016Z"
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:11:09.066Z",
+    "data": {
+      "id": "1768651869066",
+      "timestamp": "2026-01-17T12:11:09.066Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/lib/types.ts",
+      "changedLines": [
+        138
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:12:21.380Z",
+    "data": {
+      "id": "1768651941380",
+      "timestamp": "2026-01-17T12:12:21.380Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/lib/types.ts",
+      "changedLines": [
+        118
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:12:21.407Z",
+    "data": {
+      "id": "1768651941407",
+      "timestamp": "2026-01-17T12:12:21.407Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        84
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:12:29.169Z",
+    "data": {
+      "id": "1768651949169",
+      "timestamp": "2026-01-17T12:12:29.169Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        124
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:12:34.387Z",
+    "data": {
+      "id": "1768651954387",
+      "timestamp": "2026-01-17T12:12:34.387Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        140
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:12:37.337Z",
+    "data": {
+      "id": "1768651957337",
+      "timestamp": "2026-01-17T12:12:37.337Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        192
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:12:40.423Z",
+    "data": {
+      "id": "1768651960423",
+      "timestamp": "2026-01-17T12:12:40.423Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        213
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:13:29.253Z",
+    "data": {
+      "id": "1768652009253",
+      "timestamp": "2026-01-17T12:13:29.253Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/GameEndModal.tsx",
+      "changedLines": [
+        12
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:13:31.693Z",
+    "data": {
+      "id": "1768652011693",
+      "timestamp": "2026-01-17T12:13:31.693Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/GameEndModal.tsx",
+      "changedLines": [
+        23
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:13:36.186Z",
+    "data": {
+      "id": "1768652016186",
+      "timestamp": "2026-01-17T12:13:36.186Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/GameEndModal.tsx",
+      "changedLines": [
+        59
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:13:41.462Z",
+    "data": {
+      "id": "1768652021462",
+      "timestamp": "2026-01-17T12:13:41.462Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        2
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:13:48.559Z",
+    "data": {
+      "id": "1768652028559",
+      "timestamp": "2026-01-17T12:13:48.559Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        18
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:13:57.259Z",
+    "data": {
+      "id": "1768652037259",
+      "timestamp": "2026-01-17T12:13:57.259Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        243
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:14:17.496Z",
+    "data": {
+      "id": "1768652057496",
+      "timestamp": "2026-01-17T12:14:17.496Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        2,
+        18,
+        241,
+        244
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:14:17.497Z",
+    "data": {
+      "id": "1768652057497",
+      "timestamp": "2026-01-17T12:14:17.497Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/GameEndModal.tsx",
+      "changedLines": [
+        12,
+        23,
+        59,
+        60,
+        61,
+        62,
+        66,
+        67,
+        68,
+        69,
+        74
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:14:49.501Z",
+    "data": {
+      "id": "1768652089501",
+      "timestamp": "2026-01-17T12:14:49.501Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/HelpPage.tsx",
+      "changedLines": [
+        1
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:14:54.664Z",
+    "data": {
+      "id": "1768652094664",
+      "timestamp": "2026-01-17T12:14:54.664Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/HelpPage.tsx",
+      "changedLines": [
+        113
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:15:01.176Z",
+    "data": {
+      "id": "1768652101176",
+      "timestamp": "2026-01-17T12:15:01.176Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/HelpPage.tsx",
+      "changedLines": [
+        252
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:15:53.173Z",
+    "data": {
+      "id": "1768652153173",
+      "timestamp": "2026-01-17T12:15:53.173Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/GameEndModal.tsx",
+      "changedLines": [
+        7
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:15:53.179Z",
+    "data": {
+      "id": "1768652153179",
+      "timestamp": "2026-01-17T12:15:53.179Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/CommandHistory.tsx",
+      "changedLines": [
+        1,
+        5
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:15:56.401Z",
+    "data": {
+      "id": "1768652156401",
+      "timestamp": "2026-01-17T12:15:56.401Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": [
+        213
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:16:45.728Z",
+    "data": {
+      "id": "1768652205728",
+      "timestamp": "2026-01-17T12:16:45.728Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/HelpPage.tsx",
+      "changedLines": [
+        112
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:16:52.275Z",
+    "data": {
+      "id": "1768652212275",
+      "timestamp": "2026-01-17T12:16:52.275Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/HelpPage.tsx",
+      "changedLines": [
+        203
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:16:58.654Z",
+    "data": {
+      "id": "1768652218654",
+      "timestamp": "2026-01-17T12:16:58.654Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/HelpPage.tsx",
+      "changedLines": [
+        254
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:17:01.862Z",
+    "data": {
+      "id": "1768652221862",
+      "timestamp": "2026-01-17T12:17:01.862Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/HelpPage.tsx",
+      "changedLines": [
+        1
+      ]
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:17:08.285Z",
+    "data": {
+      "id": "1768652228285",
+      "timestamp": "2026-01-17T12:17:08.285Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/hooks/useApiGame.ts",
+      "changedLines": []
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:17:08.286Z",
+    "data": {
+      "id": "1768652228286",
+      "timestamp": "2026-01-17T12:17:08.286Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/ArchivePage.tsx",
+      "changedLines": []
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:17:08.286Z",
+    "data": {
+      "id": "1768652228286",
+      "timestamp": "2026-01-17T12:17:08.286Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/GameEndModal.tsx",
+      "changedLines": []
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:17:08.287Z",
+    "data": {
+      "id": "1768652228287",
+      "timestamp": "2026-01-17T12:17:08.287Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/lib/types.ts",
+      "changedLines": []
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:17:08.287Z",
+    "data": {
+      "id": "1768652228287",
+      "timestamp": "2026-01-17T12:17:08.287Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/HelpPage.tsx",
+      "changedLines": []
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:17:08.288Z",
+    "data": {
+      "id": "1768652228288",
+      "timestamp": "2026-01-17T12:17:08.288Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/components/CommandHistory.tsx",
+      "changedLines": []
+    }
+  },
+  {
+    "type": "fileSave",
+    "timestamp": "2026-01-17T12:17:08.289Z",
+    "data": {
+      "id": "1768652228289",
+      "timestamp": "2026-01-17T12:17:08.289Z",
+      "type": "fileSave",
+      "filePath": "/Users/artties/Documents/HacknRoll26/src/pages/GamePage.tsx",
+      "changedLines": []
     }
   }
 ]

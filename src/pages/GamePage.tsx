@@ -82,8 +82,8 @@ export default function GamePage() {
     
     const text = `🎮 Gitty - Daily Puzzle
 📊 Score: ${gameReward.score}
-⌨️ Commands: ${gameState.commandsUsed}/${gameState.parScore} par
-${gameReward.commandsUnderPar > 0 ? `🏆 ${gameReward.commandsUnderPar} under par!` : ''}
+⌨️ Commands: ${gameState.commandsUsed ?? 0}/${gameState.parScore ?? '?'} par
+${(gameReward.commandsUnderPar ?? 0) > 0 ? `🏆 ${gameReward.commandsUnderPar} under par!` : ''}
 
 Play at: [your-url]`;
     
@@ -122,15 +122,15 @@ Play at: [your-url]`;
               <span className="text-gray-500">Commands:</span>
               <span className={cn(
                 'font-mono font-bold ml-1',
-                puzzle && gameState.commandsUsed >= puzzle.constraints.maxCommands && 'text-red-600'
-              )}>{gameState.commandsUsed}</span>
-              <span className="text-gray-400">/{puzzle?.constraints.maxCommands ?? '?'}</span>
-              <span className="text-gray-300 ml-1">(par: {gameState.parScore})</span>
+                puzzle?.constraints && gameState.commandsUsed && gameState.commandsUsed >= puzzle.constraints.maxCommands && 'text-red-600'
+              )}>{gameState.commandsUsed ?? 0}</span>
+              <span className="text-gray-400">/{puzzle?.constraints?.maxCommands ?? '?'}</span>
+              <span className="text-gray-300 ml-1">(par: {gameState.parScore ?? '?'})</span>
             </div>
 
-            {gameState.undoStack.length > 0 && (
+            {(gameState.undoStack ?? []).length > 0 && (
               <div className="text-xs text-gray-500">
-                {gameState.undoStack.length} undo available
+                {gameState.undoStack?.length ?? 0} undo available
               </div>
             )}
           </div>
@@ -138,10 +138,10 @@ Play at: [your-url]`;
           {/* Files to collect */}
           <div className="bg-white border rounded-lg p-3 flex-1 overflow-y-auto">
             <div className="text-sm font-bold mb-2">
-              Files ({gameState.files.filter(f => f.collected).length}/{gameState.files.length})
+              Files ({(gameState.files ?? []).filter((f: any) => f.collected).length}/{(gameState.files ?? []).length})
             </div>
             <div className="space-y-1.5">
-              {gameState.files.map((file) => (
+              {(gameState.files ?? []).map((file: any) => (
                 <div
                   key={file.id}
                   className={cn(
@@ -155,7 +155,7 @@ Play at: [your-url]`;
                 </div>
               ))}
             </div>
-            {gameState.files.every(f => f.collected) && (
+            {(gameState.files ?? []).every((f: any) => f.collected) && (
               <div className="mt-2 text-xs text-amber-600 font-medium">
                 ✨ Merge to main!
               </div>
@@ -190,8 +190,8 @@ Play at: [your-url]`;
             <GitGraphSkeleton className="h-full" />
           ) : gameState ? (
             <GitGraph
-              graph={gameState.graph}
-              files={gameState.files}
+              graph={gameState.graph ?? { nodes: [], edges: [] }}
+              files={gameState.files ?? []}
               className="h-full"
             />
           ) : (
@@ -211,7 +211,7 @@ Play at: [your-url]`;
         {/* Command terminal area */}
         <div className="space-y-2 shrink-0">
           <CommandHistory
-            commands={gameState?.commandHistory || []}
+            commands={gameState?.commandHistory ?? []}
             output={output}
             className="h-28 md:h-36"
           />

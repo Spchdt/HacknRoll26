@@ -116,6 +116,7 @@ export interface GameRewards {
   score: number;
   parScore: number;
   commandsUsed: number;
+  commandsUnderPar: number; // Number of commands under par
   performance: 'under_par' | 'at_par' | 'over_par';
   bonusPoints: number;
   optimalSolution: {

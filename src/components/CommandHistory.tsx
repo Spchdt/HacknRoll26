@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
-import type { GameCommand } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface CommandHistoryProps {
-  commands: GameCommand[];
+  commands: string[];
   output: string[];
   className?: string;
 }

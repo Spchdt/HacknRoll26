@@ -109,29 +109,7 @@ const HELP_SECTIONS: HelpSection[] = [
     id: 'winning',
     title: 'Winning & Scoring',
     icon: <Trophy size={20} />,
-    content: (
-      <div className="space-y-3">
-        <p>
-          To win, you must:
-        </p>
-        <ol className="list-decimal list-inside space-y-1 pl-2">
-          <li>Collect all target files</li>
-          <li>Merge or rebase everything back to the main branch</li>
-        </ol>
-        <p>
-          Your score is based on how many commands you used compared to the <strong>par score</strong> 
-          (the minimum commands needed according to the solver).
-        </p>
-        <div className="bg-gray-50 p-3 rounded-lg">
-          <p className="font-bold">Scoring:</p>
-          <ul className="text-sm space-y-1 mt-2">
-            <li>• Base score: 100 points</li>
-            <li>• Under par: +20 points per command saved</li>
-            <li>• Over par: -10 points per extra command (min 10 points)</li>
-          </ul>
-        </div>
-      </div>
-    ),
+    content: null, // Will be handled specially in HelpPage
   },
   {
     id: 'tips',
@@ -222,7 +200,11 @@ export default function HelpPage() {
                 {section.title}
               </h2>
               <div className="prose prose-sm max-w-none">
-                {section.content}
+                {section.id === 'winning' ? (
+                  <WinningContent onNavigateToCollecting={() => setActiveSection('collecting')} />
+                ) : (
+                  section.content
+                )}
               </div>
             </div>
           ))}
@@ -267,6 +249,39 @@ interface CommandHelpProps {
   command: string;
   description: string;
   example: string;
+}
+
+function WinningContent({ onNavigateToCollecting }: { onNavigateToCollecting: () => void }) {
+  return (
+    <div className="space-y-3">
+      <p>
+        To win, you must:
+      </p>
+      <ol className="list-decimal list-inside space-y-1 pl-2">
+        <li>
+          <button
+            onClick={onNavigateToCollecting}
+            className="text-black hover:underline font-medium"
+          >
+            Collect all target files
+          </button>
+        </li>
+        <li>Merge or rebase everything back to the main branch</li>
+      </ol>
+      <p>
+        Your score is based on how many commands you used compared to the <strong>par score</strong> 
+        (the minimum commands needed according to the solver).
+      </p>
+      <div className="bg-gray-50 p-3 rounded-lg">
+        <p className="font-bold">Scoring:</p>
+        <ul className="text-sm space-y-1 mt-2">
+          <li>• Base score: 100 points</li>
+          <li>• Under par: +20 points per command saved</li>
+          <li>• Over par: -10 points per extra command (min 10 points)</li>
+        </ul>
+      </div>
+    </div>
+  );
 }
 
 function CommandHelp({ command, description, example }: CommandHelpProps) {

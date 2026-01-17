@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 interface GameEndModalProps {
   isOpen: boolean;
   onClose: () => void;
-  reward: GameReward | null;
+  reward: any | null; // GameRewards from API or GameReward for legacy
   commandsUsed: number;
   parScore: number;
   onShare?: () => void;
