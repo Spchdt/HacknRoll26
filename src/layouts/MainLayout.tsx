@@ -4,8 +4,8 @@ import { NavLink, Outlet } from 'react-router-dom';
 const Navbar = () => {
     return (
         <>
-            {/* Logo - always visible in top left corner */}
-            <div className="fixed top-2 left-2 z-20">
+            {/* Logo - hidden on mobile, visible on md and up */}
+            <div className="hidden md:fixed top-2 left-2 z-20">
                 <img src="/logo.svg" alt="Gitty" className="h-14 w-20 md:h-14 md:w-25" />
             </div>
             
