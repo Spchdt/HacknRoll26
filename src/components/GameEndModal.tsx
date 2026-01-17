@@ -1,5 +1,4 @@
 import { Trophy, GitBranch, Star } from 'lucide-react';
-import type { GameReward, GameCommand } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 interface GameEndModalProps {
