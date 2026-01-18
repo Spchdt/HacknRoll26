@@ -20,10 +20,10 @@ export default function LeaderboardPage() {
   // Mock leaderboard data to show when API returns empty
   const mockLeaderboard: LeaderboardEntry[] = [
     { rank: 1, username: 'Marshall Wace', score: 2450, gamesPlayed: 15 },
-    { rank: 2, username: 'Zuyi', score: 2280, gamesPlayed: 18 },
-    { rank: 3, username: 'Art', score: 2150, gamesPlayed: 12 },
-    { rank: 4, username: 'Lucas', score: 1980, gamesPlayed: 14 },
-    { rank: 5, username: 'Quacker', score: 1820, gamesPlayed: 10 },
+    { rank: 2, username: 'Quacker', score: 2280, gamesPlayed: 67 },
+    { rank: 3, username: 'Claude', score: 2150, gamesPlayed: 12 },
+    { rank: 4, username: 'Gemini', score: 1980, gamesPlayed: 14 },
+    { rank: 5, username: 'Jane', score: 1820, gamesPlayed: 10 },
   ];
 
   const loadLeaderboard = async () => {

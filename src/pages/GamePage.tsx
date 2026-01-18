@@ -25,7 +25,7 @@ export default function GamePage() {
     output,
     startGame,
     executeCommandString,
-    resetGame,
+
     gameReward,
     isGameEnded,
   } = useApiGame();
@@ -70,11 +70,7 @@ export default function GamePage() {
     markTutorialSeen();
   };
 
-  // Handle game start
-  const handleStartGame = () => {
-    resetGame();
-    startGame();
-  };
+
 
   return (
     <div className="flex h-[calc(100vh-140px)] md:h-[calc(100vh-100px)] gap-3">
