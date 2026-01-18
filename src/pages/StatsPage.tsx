@@ -166,7 +166,7 @@ export default function StatsPage() {
           <h3 className="font-bold mb-2">Last Played</h3>
           <p className="text-lg font-medium">
             {stats.lastPlayedAt 
-              ? new Date(stats.lastPlayedAt).toLocaleDateString()
+              ? new Date(Number(stats.lastPlayedAt) * 1000).toLocaleDateString()
               : 'Never'}
           </p>
         </div>
