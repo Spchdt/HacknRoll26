@@ -18,7 +18,7 @@ A fun, interactive puzzle game that teaches git commands through hands-on gamepl
 
 ## Features
 
-✨ **Interactive Git Learning**
+**Interactive Git Learning**
 - Learn git commands by playing
 - Real-time terminal feedback
 - Step-by-step tutorials for beginners
@@ -106,47 +106,6 @@ $ git checkout main           # Switch back to main
 $ git merge feature           # Merge feature into main
 ```
 
-## Project Structure
-
-```
-gitty/
-├── src/
-│   ├── components/           # Reusable React components
-│   │   ├── CommandHistory.tsx
-│   │   ├── CommandInput.tsx
-│   │   ├── FileTracker.tsx
-│   │   ├── GameEndModal.tsx
-│   │   ├── GameStatusBar.tsx
-│   │   ├── GitGraph.tsx
-│   │   ├── SetNameModal.tsx
-│   │   └── TutorialModal.tsx
-│   ├── hooks/                # Custom React hooks
-│   │   ├── useAuth.ts
-│   │   ├── useApiGame.ts
-│   │   └── useGame.ts
-│   ├── layouts/              # Layout components
-│   │   └── MainLayout.tsx
-│   ├── lib/                  # Utilities and API
-│   │   ├── api.ts            # API client
-│   │   ├── colors.ts         # Color configuration
-│   │   ├── gitEngine.ts      # Git logic
-│   │   ├── types.ts          # TypeScript types
-│   │   └── utils.ts          # Helper functions
-│   ├── pages/                # Page components
-│   │   ├── ArchivePage.tsx
-│   │   ├── GamePage.tsx
-│   │   ├── HelpPage.tsx
-│   │   ├── LeaderboardPage.tsx
-│   │   └── StatsPage.tsx
-│   ├── App.tsx
-│   └── main.tsx
-├── public/                   # Static assets
-├── index.html
-├── vite.config.ts
-├── tsconfig.json
-└── package.json
-```
-
 ## Technologies Used
 
 - **Frontend Framework**: React 18
@@ -225,25 +184,13 @@ Contributions are welcome! Here's how you can help:
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
+   
 ## Acknowledgments
 
 - Built with React and TypeScript
 - Game mechanics inspired by Git learning principles
 - UI powered by Tailwind CSS and Lucide icons
 - Hosted and deployed on Netlify
+- 
 
-## Support
-
-For issues, questions, or suggestions, please:
-- Open an issue on GitHub
-- Check the Help page in-game for tutorials
-- Visit the Leaderboard to see how others are doing
-
----
-
-**Happy learning! Master git one puzzle at a time.** 🎮
+**Happy learning! Made with ❤️ by Kopibara C Peng**
