@@ -140,7 +140,7 @@ export default function GamePage() {
             </div>
             {(gameState.files ?? []).every((f: any) => f.collected) && (
               <div className="mt-2 text-xs text-amber-600 font-medium">
-                Checkout to main!
+                Checkout & Merge to main!
               </div>
             )}
           </div>
@@ -216,6 +216,7 @@ export default function GamePage() {
             onSubmit={handleCommand}
             disabled={gameState?.status === 'won' || gameState?.status === 'abandoned'}
             history={commandHistory}
+            branches={gameState?.graph?.branches ? Array.from(gameState.graph.branches.keys()) : []}
           />
         </div>
       </div>

@@ -137,7 +137,7 @@ export default function StatsPage() {
                 <div className="text-right">
                   <span className="font-mono font-bold">{game.score}</span>
                   <p className={cn('text-xs', isDarkMode ? 'text-gray-400' : 'text-gray-500')}>
-                    {new Date(game.completedAt).toLocaleDateString()}
+                    {new Date(Number(game.completedAt) * 1000).toLocaleDateString()}
                   </p>
                 </div>
               </div>

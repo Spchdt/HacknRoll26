@@ -20,7 +20,7 @@ interface NodePosition {
 // Layout constants
 const NODE_RADIUS = 14;
 const CELL_WIDTH = 80;
-const CELL_HEIGHT = 70;
+const CELL_HEIGHT = 100;
 const PADDING_LEFT = 100;
 const PADDING_TOP = 50;
 

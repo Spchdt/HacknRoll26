@@ -8,8 +8,11 @@ import type {
   StartGameResponse,
   GitGraph,
   FileTarget,
+  LocalPuzzle,
+  GameCommand,
 } from '@/lib/types';
 import { api } from '@/lib/api';
+import { GitEngine } from '@/lib/gitEngine';
 
 // Branch colors for UI
 const BRANCH_COLORS: Record<string, string> = {
@@ -218,10 +221,100 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       throw new Error('No active game session. Type "git init" to start.');
     }
 
-    setIsLoading(true);
+    // Optimistic update: Don't show loading state
+    // setIsLoading(true); 
     setError(null);
 
+    // Save current state for rollback
+    const previousState = { ...gameState };
+
     try {
+      // 1. Simulate command locally
+      // Convert Puzzle to LocalPuzzle format for GitEngine
+      const localPuzzle: LocalPuzzle = {
+        id: puzzle.id,
+        difficulty: (puzzle.difficulty || 'medium') as 'easy' | 'medium' | 'hard',
+        files: (puzzle.fileTargets || []).map((t: any, idx: number) => ({
+          id: t.id || `file-${idx}`,
+          name: t.fileName || t.name,
+          branch: t.branch,
+          depth: t.depth,
+          collected: false // Initial state, will be overwritten by restoreState
+        })),
+        initialGraph: transformApiGameState(puzzle.initialState || {}, puzzle).graph,
+        solution: [],
+        parScore: puzzle.parScore,
+        constraints: {
+          maxCommands: puzzle.constraints?.maxCommands ?? 100,
+          maxCommits: puzzle.constraints?.maxCommits ?? 50,
+          maxCheckouts: puzzle.constraints?.maxCheckouts ?? 50,
+          maxBranches: puzzle.constraints?.maxBranches ?? 10,
+          allowedCommands: puzzle.constraints?.allowedCommands ?? ['commit', 'branch', 'checkout', 'merge', 'rebase', 'undo']
+        }
+      };
+
+      const engine = new GitEngine(localPuzzle);
+
+      // Restore current state into engine
+      engine.restoreState(gameState.graph, gameState.files);
+
+      // Convert API Command to GameCommand for engine
+      let engineCommand: GameCommand;
+      switch (command.type) {
+        case 'commit':
+          engineCommand = { type: 'commit', args: [command.message], timestamp: Date.now(), success: true };
+          break;
+        case 'branch':
+          engineCommand = { type: 'branch', args: [command.name], timestamp: Date.now(), success: true };
+          break;
+        case 'checkout':
+          engineCommand = { type: 'checkout', args: [command.target], timestamp: Date.now(), success: true };
+          break;
+        case 'merge':
+          engineCommand = { type: 'merge', args: [command.branch], timestamp: Date.now(), success: true };
+          break;
+        case 'rebase':
+          engineCommand = { type: 'rebase', args: [command.onto], timestamp: Date.now(), success: true };
+          break;
+        case 'undo':
+          // Undo is special, handled by API mostly, but we can try to simulate or just wait
+          // For now, let's just let API handle undo as it's complex to revert local state without full history
+          // But user wants optimistic update. 
+          // If we have undoStack in gameState, we can pop it.
+          if (gameState.undoStack && gameState.undoStack.length > 0) {
+            // const prev = gameState.undoStack[gameState.undoStack.length - 1];
+            // We can optimistically revert to prev state
+            // But simpler to just let API handle undo for now as it's rare and complex
+            // Actually, let's just skip optimistic update for undo to be safe, or implement it if easy.
+            // The prompt asked for "git command", usually implies forward commands.
+            // Let's skip optimistic update for undo for now to avoid state mismatch bugs.
+            engineCommand = { type: 'undo', args: [], timestamp: Date.now(), success: true };
+          } else {
+            engineCommand = { type: 'undo', args: [], timestamp: Date.now(), success: true };
+          }
+          break;
+      }
+
+      // Execute locally (skip for undo)
+      if (command.type !== 'undo') {
+        const result = engine.executeCommand(engineCommand!);
+
+        if (!result.success) {
+          throw new Error(result.message);
+        }
+
+        // Apply optimistic state
+        const optimisticState: TransformedGameState = {
+          ...gameState,
+          graph: result.newState!,
+          files: result.filesCollected || gameState.files,
+          commandsUsed: (gameState.commandsUsed || 0) + 1,
+          // We don't update undoStack locally easily, but that's fine for optimistic UI
+        };
+        setGameState(optimisticState);
+      }
+
+      // 2. Send to API
       const response: CommandResponse = await api.sendCommand(gameId, command);
 
       if (response.success && response.gameState) {
@@ -251,6 +344,9 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
 
       return null;
     } catch (err) {
+      // Rollback on error
+      setGameState(previousState);
+
       const errorMessage = err instanceof Error ? err.message : 'Command failed';
       setError(errorMessage);
       throw err;
@@ -340,6 +436,8 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       return result;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Command failed';
+      // Don't duplicate error output if it was already handled/rolled back, 
+      // but here we are at the UI layer, so showing it is fine.
       setOutput(prev => [...prev, `Error: ${errorMsg}`, '']);
       return null;
     }
