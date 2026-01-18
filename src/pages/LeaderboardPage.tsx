@@ -51,32 +51,13 @@ export default function LeaderboardPage() {
           const totalGames = statsResponse.stats?.totalGamesPlayed ?? 0;
           const userScore = Math.round(avgScore * totalGames);
           const userGames = totalGames || 3;
-          
-          // Create user entry
-          const myEntry: LeaderboardEntry = {
-            rank: 0, // Will be calculated
-            username: username || 'You',
-            score: userScore,
-            gamesPlayed: userGames
-          };
-
-          // Combine with mock data and sort
-          const allEntries = [...mockLeaderboard, myEntry].sort((a, b) => b.score - a.score);
-          
-          // Assign ranks
-          const rankedEntries = allEntries.map((entry, index) => ({
-            ...entry,
-            rank: index + 1
-          }));
-
-          // Find user's new rank
-          const myRankedEntry = rankedEntries.find(e => e.username === (username || 'You'));
-          
-          setLeaderboard(rankedEntries.slice(0, 50)); // Show top 50
-          if (myRankedEntry) {
-            setUserRank(myRankedEntry.rank);
-            setUserEntry(myRankedEntry);
-          }
+          setUserRank(67); // Mock rank outside top 50
+          setUserEntry({ 
+            rank: 67, 
+            username: username || 'You', 
+            score: userScore, 
+            gamesPlayed: userGames 
+          });
         } catch {
           // Fallback if stats API fails
           setUserRank(67);
