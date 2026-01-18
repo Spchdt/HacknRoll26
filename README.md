@@ -1,4 +1,5 @@
 # Gitty - Git Learning Game
+[**Play Gitty now!**](https://git1y.netlify.app/)
 
 A fun, interactive puzzle game that teaches git commands through hands-on gameplay. Master git concepts by solving daily puzzles where you collect files scattered across branches and merge them to main.
 
