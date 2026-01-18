@@ -3,7 +3,6 @@ import { RefreshCw, HelpCircle } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useApiGame } from '@/hooks/useApiGame';
 import { useAuth } from '@/hooks/useAuth';
-import { useDarkMode } from '@/layouts/MainLayout';
 import {
   GitGraph,
   GitGraphSkeleton,
@@ -18,7 +17,6 @@ import { cn, hasSeenTutorial, markTutorialSeen } from '@/lib/utils';
 export default function GamePage() {
   const [searchParams] = useSearchParams();
   const { setUsername: setUsernameApi } = useAuth();
-  const { isDarkMode } = useDarkMode();
   
   const {
     gameState,
@@ -76,25 +74,6 @@ export default function GamePage() {
   const handleStartGame = () => {
     resetGame();
     startGame();
-  };
-
-  // Handle share
-  const handleShare = () => {
-    if (!gameState || !gameReward) return;
-    
-    const text = `Gitty - Daily Puzzle
-Score: ${gameReward.score}
-Commands: ${gameState.commandsUsed ?? 0}/${gameState.parScore ?? '?'} par
-${(gameReward.commandsUnderPar ?? 0) > 0 ? `${gameReward.commandsUnderPar} under par!` : ''}
-
-Play at: [your-url]`;
-    
-    if (navigator.share) {
-      navigator.share({ text });
-    } else {
-      navigator.clipboard.writeText(text);
-      alert('Result copied to clipboard!');
-    }
   };
 
   return (
@@ -249,7 +228,7 @@ Play at: [your-url]`;
         reward={gameReward}
         commandsUsed={gameState?.commandsUsed || 0}
         parScore={gameState?.parScore || 0}
-        onShare={handleShare}
+        date={puzzle?.date}
         onSetUsername={() => {
           setShowEndModal(false);
           setShowNameModal(true);
