@@ -10,13 +10,13 @@ interface UseGameReturn {
   isLoading: boolean;
   error: string | null;
   output: string[];
-  
+
   // Actions
   startGame: (puzzleId?: string) => void;
   executeCommand: (commandString: string) => CommandResult;
   undo: () => boolean;
   resetGame: () => void;
-  
+
   // Game end
   gameReward: GameReward | null;
   isGameEnded: boolean;
@@ -40,11 +40,11 @@ export function useGame(): UseGameReturn {
       // Restore game
       const savedPuzzle = saved.puzzle;
       const newEngine = new GitEngine(savedPuzzle);
-      
+
       // Deserialize the graph from saved state
       const graph = deserializeGraph(saved.state.graph as unknown as ReturnType<typeof serializeGraph>);
       newEngine.restoreState(graph, saved.state.files);
-      
+
       // Convert old undoStack format (GitGraph[]) to new format (UndoState[]) for backwards compatibility
       const undoStack: UndoState[] = saved.state.undoStack.map((item: UndoState | GitGraph) => {
         if ('graph' in item && 'files' in item) {
@@ -57,7 +57,7 @@ export function useGame(): UseGameReturn {
           files: saved.state.files.map(f => ({ ...f, collected: false })),
         };
       });
-      
+
       setPuzzle(savedPuzzle);
       setEngine(newEngine);
       setGameState({
@@ -90,12 +90,12 @@ export function useGame(): UseGameReturn {
     setIsLoading(true);
     setError(null);
     setGameReward(null);
-    
+
     try {
       // For now, use test puzzle. In production, fetch from API
       const newPuzzle = createTestPuzzle();
       const newEngine = new GitEngine(newPuzzle);
-      
+
       const initialState: GameState = {
         id: `game-${Date.now()}`,
         puzzleId: puzzleId || newPuzzle.id,
@@ -109,7 +109,7 @@ export function useGame(): UseGameReturn {
         parScore: newPuzzle.parScore,
         startedAt: Date.now(),
       };
-      
+
       setPuzzle(newPuzzle);
       setEngine(newEngine);
       setGameState(initialState);
@@ -186,7 +186,36 @@ export function useGame(): UseGameReturn {
 
     // Extract arguments
     let args = parsed.args;
-    
+
+    // Special handling for checkout -b (create and checkout branch)
+    if (commandType === 'checkout' && parsed.args.includes('-b')) {
+      const bIndex = parsed.args.indexOf('-b');
+      const branchName = parsed.args[bIndex + 1];
+
+      if (!branchName) {
+        const errorMsg = 'Branch name required after -b flag';
+        setOutput(prev => [...prev, `$ ${commandString}`, `Error: ${errorMsg}`]);
+        return { success: false, message: errorMsg };
+      }
+
+      // First create the branch
+      const branchCommand: GameCommand = {
+        type: 'branch',
+        args: [branchName],
+        timestamp: Date.now(),
+        success: false,
+      };
+
+      const branchResult = engine.executeCommand(branchCommand);
+      if (!branchResult.success) {
+        setOutput(prev => [...prev, `$ ${commandString}`, `Error: ${branchResult.message}`]);
+        return branchResult;
+      }
+
+      // Then checkout to it
+      args = [branchName];
+    }
+
     // Special handling for commit -m "message"
     if (commandType === 'commit') {
       const messageMatch = commandString.match(/-m\s+["'](.+?)["']/);
@@ -232,7 +261,7 @@ export function useGame(): UseGameReturn {
     // Update state
     setGameState(prev => {
       if (!prev) return null;
-      
+
       const newState: GameState = {
         ...prev,
         graph: engine.getGraph(),
@@ -247,7 +276,7 @@ export function useGame(): UseGameReturn {
       if (result.gameWon) {
         newState.status = 'won';
         newState.completedAt = Date.now();
-        
+
         const score = calculateScore(newState.commandsUsed, newState.parScore);
         const reward: GameReward = {
           score,
@@ -255,7 +284,7 @@ export function useGame(): UseGameReturn {
           commandsUnderPar: newState.parScore - newState.commandsUsed,
           optimalSolution: [], // Would come from backend
         };
-        
+
         setGameReward(reward);
         setOutput(prev => [
           ...prev,
@@ -287,10 +316,10 @@ export function useGame(): UseGameReturn {
 
     const previousState = gameState.undoStack[gameState.undoStack.length - 1];
     const lastCommand = gameState.commandHistory[gameState.commandHistory.length - 1];
-    
+
     // Restore both graph and files from the saved state
     engine.restoreState(previousState.graph, previousState.files);
-    
+
     setGameState(prev => {
       if (!prev) return null;
       return {
@@ -300,8 +329,8 @@ export function useGame(): UseGameReturn {
         commandHistory: prev.commandHistory.slice(0, -1),
         undoStack: prev.undoStack.slice(0, -1),
         commandsUsed: Math.max(0, prev.commandsUsed - 1),
-        checkoutsUsed: lastCommand?.type === 'checkout' 
-          ? Math.max(0, prev.checkoutsUsed - 1) 
+        checkoutsUsed: lastCommand?.type === 'checkout'
+          ? Math.max(0, prev.checkoutsUsed - 1)
           : prev.checkoutsUsed,
       };
     });

@@ -4,16 +4,27 @@ import type { LeaderboardEntry } from '@/lib/types';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { useDarkMode } from '@/layouts/MainLayout';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function LeaderboardPage() {
   const { isDarkMode } = useDarkMode();
+  const { username } = useAuth();
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [userRank, setUserRank] = useState<number | null>(null);
-  const [, setUserEntry] = useState<LeaderboardEntry | null>(null);
+  const [userEntry, setUserEntry] = useState<LeaderboardEntry | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<'score' | 'gamesPlayed'>('score');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
+  // Mock leaderboard data to show when API returns empty
+  const mockLeaderboard: LeaderboardEntry[] = [
+    { rank: 1, username: 'Marshall Wace', score: 2450, gamesPlayed: 15 },
+    { rank: 2, username: 'Zuyi', score: 2280, gamesPlayed: 18 },
+    { rank: 3, username: 'Art', score: 2150, gamesPlayed: 12 },
+    { rank: 4, username: 'Lucas', score: 1980, gamesPlayed: 14 },
+    { rank: 5, username: 'Quacker', score: 1820, gamesPlayed: 10 },
+  ];
 
   const loadLeaderboard = async () => {
     setIsLoading(true);
@@ -23,9 +34,33 @@ export default function LeaderboardPage() {
       const response = await api.getLeaderboard();
       
       // API returns { entries, userRank?, userEntry? } directly
-      setLeaderboard(response.entries);
-      setUserRank(response.userRank ?? null);
-      setUserEntry(response.userEntry ?? null);
+      // Use mock data if API returns empty entries
+      if (response.entries && response.entries.length > 0) {
+        setLeaderboard(response.entries);
+        setUserRank(response.userRank ?? null);
+        setUserEntry(response.userEntry ?? null);
+      } else {
+        // Use mock data
+        setLeaderboard(mockLeaderboard);
+        
+        // Try to get real user stats for the user entry
+        try {
+          const statsResponse = await api.getStats();
+          const userScore = statsResponse.stats?.bestScore ?? 850;
+          const userGames = statsResponse.stats?.totalGamesPlayed ?? 3;
+          setUserRank(67); // Mock rank outside top 50
+          setUserEntry({ 
+            rank: 67, 
+            username: username || 'You', 
+            score: userScore, 
+            gamesPlayed: userGames 
+          });
+        } catch {
+          // Fallback if stats API fails
+          setUserRank(67);
+          setUserEntry({ rank: 67, username: username || 'You', score: 850, gamesPlayed: 3 });
+        }
+      }
     } catch (err) {
       console.error('Failed to load leaderboard:', err);
       setError(err instanceof Error ? err.message : 'Failed to load leaderboard');
@@ -37,6 +72,13 @@ export default function LeaderboardPage() {
   useEffect(() => {
     loadLeaderboard();
   }, []);
+
+  // Update userEntry when username loads after initial fetch
+  useEffect(() => {
+    if (username && userEntry && userEntry.username === 'You') {
+      setUserEntry(prev => prev ? { ...prev, username } : null);
+    }
+  }, [username, userEntry]);
 
   const sortedLeaderboard = [...leaderboard].sort((a, b) => {
     const aVal = a[sortBy];
@@ -173,6 +215,35 @@ export default function LeaderboardPage() {
               </tr>
             ))}
           </tbody>
+          {/* Show user's entry at bottom if outside top 50 */}
+          {userEntry && userRank && userRank > 50 && (
+            <tfoot>
+              <tr className={cn('border-t-4', isDarkMode ? 'border-gray-600' : 'border-gray-300')}>
+                <td colSpan={4} className="p-1"></td>
+              </tr>
+              <tr className={cn(
+                'border-t transition-colors',
+                isDarkMode ? 'border-gray-700 bg-blue-900/30' : 'border-gray-200 bg-blue-50'
+              )}>
+                <td className="p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold">#{userEntry.rank}</span>
+                  </div>
+                </td>
+                <td className="p-3">
+                  <span className="font-medium">
+                    {userEntry.username === 'You' ? 'You' : `${userEntry.username} (You)`}
+                  </span>
+                </td>
+                <td className="p-3">
+                  <span className="font-mono font-bold">{userEntry.score.toLocaleString()}</span>
+                </td>
+                <td className={cn('p-3 hidden sm:table-cell', isDarkMode ? 'text-gray-400' : 'text-gray-500')}>
+                  {userEntry.gamesPlayed}
+                </td>
+              </tr>
+            </tfoot>
+          )}
         </table>
       </div>
 

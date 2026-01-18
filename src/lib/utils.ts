@@ -30,12 +30,12 @@ export function formatDate(timestamp: number): string {
 export function formatRelativeTime(timestamp: number): string {
   const now = Date.now();
   const diff = now - timestamp;
-  
+
   const seconds = Math.floor(diff / 1000);
   const minutes = Math.floor(seconds / 60);
   const hours = Math.floor(minutes / 60);
   const days = Math.floor(hours / 24);
-  
+
   if (days > 0) return `${days}d ago`;
   if (hours > 0) return `${hours}h ago`;
   if (minutes > 0) return `${minutes}m ago`;
@@ -64,17 +64,18 @@ export function getBranchColor(branchName: string): string {
 
 // Parse git command string
 export function parseGitCommand(input: string): { command: string; args: string[] } | null {
-  const trimmed = input.trim().toLowerCase();
-  
-  // Must start with 'git'
-  if (!trimmed.startsWith('git ')) {
+  const trimmed = input.trim();
+
+  // Must start with 'git' (case insensitive)
+  if (!trimmed.toLowerCase().startsWith('git ')) {
     return null;
   }
-  
+
+  // Split preserving original case for args
   const parts = trimmed.slice(4).split(/\s+/);
-  const command = parts[0];
-  const args = parts.slice(1);
-  
+  const command = parts[0].toLowerCase(); // Only lowercase the command
+  const args = parts.slice(1); // Keep original case for arguments
+
   return { command, args };
 }
 
@@ -89,10 +90,10 @@ export function isValidBranchName(name: string): boolean {
     /\s/,            // No spaces
     /^-/,            // Can't start with hyphen
   ];
-  
-  return name.length > 0 && 
-         name.length <= 50 && 
-         !invalidPatterns.some(p => p.test(name));
+
+  return name.length > 0 &&
+    name.length <= 50 &&
+    !invalidPatterns.some(p => p.test(name));
 }
 
 // Truncate text with ellipsis
@@ -112,27 +113,27 @@ export function deepClone<T>(obj: T): T {
 import type { GitGraph, Commit, Branch } from './types';
 export function cloneGitGraph(graph: GitGraph): GitGraph {
   const commits = new Map<string, Commit>();
-  
+
   // Handle both Map and plain object
-  const commitsIterable = graph.commits instanceof Map 
+  const commitsIterable = graph.commits instanceof Map
     ? graph.commits.entries()
     : Object.entries(graph.commits as Record<string, Commit>);
-  
+
   for (const [key, commit] of commitsIterable) {
     commits.set(key, { ...commit, parentIds: [...commit.parentIds] });
   }
-  
+
   const branches = new Map<string, Branch>();
-  
+
   // Handle both Map and plain object
   const branchesIterable = graph.branches instanceof Map
     ? graph.branches.entries()
     : Object.entries(graph.branches as Record<string, Branch>);
-  
+
   for (const [key, branch] of branchesIterable) {
     branches.set(key, { ...branch });
   }
-  
+
   return {
     commits,
     branches,
@@ -145,7 +146,7 @@ export function cloneGitGraph(graph: GitGraph): GitGraph {
 export function calculateScore(commandsUsed: number, parScore: number): number {
   const diff = parScore - commandsUsed;
   const baseScore = 100;
-  
+
   if (diff >= 0) {
     // Under or at par: bonus points
     return baseScore + (diff * 20);

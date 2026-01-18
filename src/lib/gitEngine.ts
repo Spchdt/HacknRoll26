@@ -38,7 +38,7 @@ export class GitEngine {
     const ref = this.graph.isDetached
       ? this.graph.headRef
       : this.graph.branches.get(this.graph.headRef)?.tipCommitId;
-    
+
     return ref ? this.graph.commits.get(ref) || null : null;
   }
 
@@ -178,18 +178,18 @@ export class GitEngine {
       return { success: false, message: 'Checkout target is required' };
     }
 
-    // Check if target is a branch
+    // Check if target is a branch (case-sensitive for branch names)
     if (this.graph.branches.has(target)) {
       const branch = this.graph.branches.get(target)!;
       const tipCommit = this.graph.commits.get(branch.tipCommitId);
       this.graph.headRef = target;
       this.graph.isDetached = false;
-      
+
       // Show commit info to help user know where they are
-      const commitInfo = tipCommit 
+      const commitInfo = tipCommit
         ? `\n  → HEAD at ${branch.tipCommitId.slice(0, 7)}: "${tipCommit.message}"`
         : '';
-      
+
       return {
         success: true,
         message: `Switched to branch '${target}'${commitInfo}`,
@@ -197,20 +197,25 @@ export class GitEngine {
       };
     }
 
-    // Check if target is a commit
-    if (this.graph.commits.has(target)) {
-      this.graph.headRef = target;
+    // Check if target is a commit (exact match, case-insensitive)
+    const targetLower = target.toLowerCase();
+    const exactMatch = Array.from(this.graph.commits.keys()).find(
+      id => id.toLowerCase() === targetLower
+    );
+
+    if (exactMatch) {
+      this.graph.headRef = exactMatch;
       this.graph.isDetached = true;
       return {
         success: true,
-        message: `HEAD is now at ${target.slice(0, 7)}`,
+        message: `HEAD is now at ${exactMatch.slice(0, 7)}`,
         newState: cloneGitGraph(this.graph),
       };
     }
 
-    // Try short hash match
+    // Try short hash match (case-insensitive, prefix match)
     const matchingCommit = Array.from(this.graph.commits.keys()).find(
-      id => id.startsWith(target)
+      id => id.toLowerCase().startsWith(targetLower)
     );
 
     if (matchingCommit) {
@@ -251,25 +256,16 @@ export class GitEngine {
       return { success: false, message: 'Could not resolve commits for merge' };
     }
 
-    // Check if fast-forward is possible
-    if (this.isAncestor(currentCommit.id, targetCommit.id)) {
-      // Fast-forward merge
-      currentBranch.tipCommitId = targetCommit.id;
-      this.graph.branches.set(currentBranch.name, currentBranch);
-      
-      // Check win condition after fast-forward
-      const allFilesCollected = this.files.every(f => f.collected);
-      const gameWon = allFilesCollected && currentBranch.name === 'main';
-      
+    // Check if already up to date (target is ancestor of current)
+    if (this.isAncestor(targetCommit.id, currentCommit.id)) {
       return {
         success: true,
-        message: `Fast-forward merge: ${currentBranch.name} -> ${branchName}`,
+        message: `Already up to date - '${branchName}' is already merged into '${currentBranch.name}'`,
         newState: cloneGitGraph(this.graph),
-        gameWon,
       };
     }
 
-    // Create merge commit
+    // Always create a merge commit (no fast-forward) for better game visualization
     const mergeCommitId = generateCommitHash();
     const mergeCommit: Commit = {
       id: mergeCommitId,
@@ -332,7 +328,7 @@ export class GitEngine {
       // Check win condition even if already up to date
       const allFilesCollected = this.files.every(f => f.collected);
       const gameWon = allFilesCollected && currentBranch.name === 'main';
-      
+
       return {
         success: true,
         message: 'Already up to date',
@@ -404,9 +400,9 @@ export class GitEngine {
   private getCommitsBetween(fromId: string, toId: string): Commit[] {
     const commits: Commit[] = [];
     const visited = new Set<string>();
-    
+
     let current = this.graph.commits.get(fromId);
-    
+
     while (current && !visited.has(current.id) && current.id !== toId) {
       visited.add(current.id);
       commits.unshift(current);
@@ -450,7 +446,7 @@ export class GitEngine {
  */
 export function createTestPuzzle(): LocalPuzzle {
   const initialCommitId = generateCommitHash();
-  
+
   const commits = new Map<string, Commit>();
   commits.set(initialCommitId, {
     id: initialCommitId,

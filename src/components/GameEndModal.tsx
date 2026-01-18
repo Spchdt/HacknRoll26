@@ -9,6 +9,7 @@ interface GameEndModalProps {
   reward: any | null; // GameRewards from API or GameReward for legacy
   commandsUsed: number;
   parScore: number;
+  date?: string;
   onSetUsername?: () => void;
 }
 
@@ -82,6 +83,7 @@ export default function GameEndModal({
   reward,
   commandsUsed,
   parScore,
+  date,
   onSetUsername,
 }: GameEndModalProps) {
   const [showSharePreview, setShowSharePreview] = useState(false);
@@ -152,7 +154,7 @@ Play at: https://gitty.phanuphats.com`;
           {/* Preview */}
           <div className="flex justify-center mb-4" ref={shareCardRef}>
             <ShareCard 
-              date={new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              date={date || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
               score={reward.score}
               commandsUsed={commandsUsed}
               parScore={parScore}

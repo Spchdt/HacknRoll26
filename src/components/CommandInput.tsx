@@ -173,14 +173,12 @@ export default function CommandInput({
 
       {/* Quick command buttons */}
       <div className="flex gap-2 mt-2 flex-wrap">
-        {['commit', 'checkout', 'branch', 'merge', 'rebase', 'undo'].map((cmd) => (
+        {['commit', 'checkout', 'branch', 'merge', 'rebase'].map((cmd) => (
           <button
             key={cmd}
             type="button"
             onClick={() => {
-              if (cmd === 'undo') {
-                setCommand('undo');
-              } else if (cmd === 'commit') {
+              if (cmd === 'commit') {
                 setCommand('git commit -m "');
               } else {
                 setCommand(`git ${cmd} `);

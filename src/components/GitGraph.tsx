@@ -49,6 +49,9 @@ export default function GitGraphComponent({ graph, files, className }: GitGraphP
       ? Array.from(graph.branches.keys())
       : Object.keys(graph.branches || {});
     
+    // Create a set of existing branches for quick lookup
+    const existingBranches = new Set(graphBranchNames);
+    
     // Also include branches from file targets (even if not created yet)
     const fileBranchNames = files.map(f => f.branch);
     const allBranchNames = [...new Set([...graphBranchNames, ...fileBranchNames])];
@@ -62,9 +65,11 @@ export default function GitGraphComponent({ graph, files, className }: GitGraphP
 
     const branchLaneMap = new Map<string, number>();
     const laneColors = new Map<string, string>();
+    const laneExists = new Map<string, boolean>();
     sortedBranches.forEach((name, idx) => {
       branchLaneMap.set(name, idx);
       laneColors.set(name, getBranchColor(name, idx));
+      laneExists.set(name, existingBranches.has(name));
     });
 
     // Handle both Map and plain object formats for commits
@@ -111,6 +116,7 @@ export default function GitGraphComponent({ graph, files, className }: GitGraphP
       name,
       y: PADDING_TOP + idx * CELL_HEIGHT,
       color: laneColors.get(name) || DEFAULT_COLORS[0],
+      exists: laneExists.get(name) ?? false,
     }));
 
     return {
@@ -237,13 +243,15 @@ export default function GitGraphComponent({ graph, files, className }: GitGraphP
         {/* Branch labels */}
         {lanes.map((lane) => {
           const isCurrent = lane.name === currentBranchName;
+          // Use gray color for branches that don't exist yet
+          const displayColor = lane.exists ? lane.color : '#9CA3AF';
           return (
-            <g key={lane.name}>
+            <g key={lane.name} opacity={lane.exists ? 1 : 0.6}>
               {isCurrent && (
                 <rect x={4} y={lane.y - 12} width={72} height={24} rx={4}
                   fill="none" stroke="#000" strokeWidth={2} />
               )}
-              <rect x={6} y={lane.y - 10} width={68} height={20} rx={3} fill={lane.color} />
+              <rect x={6} y={lane.y - 10} width={68} height={20} rx={3} fill={displayColor} />
               <text x={40} y={lane.y + 4} textAnchor="middle" className="text-[10px] font-bold" fill="white">
                 {isCurrent ? `* ${lane.name}` : lane.name}
               </text>

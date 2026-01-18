@@ -191,9 +191,6 @@ export default function ArchivePage() {
                   <Clock size={12} />
                   Par {game.parScore}
                 </span>
-                <span className={isDarkMode ? 'text-gray-500' : 'text-gray-400'}>
-                  {game.constraints.maxBranches} branches
-                </span>
               </div>
             </button>
           );

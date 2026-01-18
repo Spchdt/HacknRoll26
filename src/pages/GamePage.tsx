@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { RefreshCw, HelpCircle } from 'lucide-react';
+import { Undo2, HelpCircle } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useApiGame } from '@/hooks/useApiGame';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,7 +16,7 @@ import { cn, hasSeenTutorial, markTutorialSeen } from '@/lib/utils';
 
 export default function GamePage() {
   const [searchParams] = useSearchParams();
-  const { setUsername: setUsernameApi } = useAuth();
+  const { username, setUsername: setUsernameApi } = useAuth();
   
   const {
     gameState,
@@ -99,14 +99,20 @@ export default function GamePage() {
               </span>
             </div>
             
-            <div className="text-sm">
-              <span className="text-gray-500">Commands:</span>
-              <span className={cn(
-                'font-mono font-bold ml-1',
-                puzzle?.constraints && gameState.commandsUsed && gameState.commandsUsed >= puzzle.constraints.maxCommands && 'text-red-600'
-              )}>{gameState.commandsUsed ?? 0}</span>
-              <span className="text-gray-400">/{puzzle?.constraints?.maxCommands ?? '?'}</span>
-              <span className="text-gray-300 ml-1">(par: {gameState.parScore ?? '?'})</span>
+            <div className="text-sm space-y-1">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Commands used:</span>
+                <span className={cn(
+                  'font-mono font-bold',
+                  gameState.parScore && gameState.commandsUsed && gameState.commandsUsed <= gameState.parScore 
+                    ? 'text-green-600' 
+                    : ''
+                )}>{gameState.commandsUsed ?? 0}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Par (goal):</span>
+                <span className="font-mono text-gray-600">{gameState.parScore ?? '?'}</span>
+              </div>
             </div>
 
             {(gameState.undoStack ?? []).length > 0 && (
@@ -138,7 +144,7 @@ export default function GamePage() {
             </div>
             {(gameState.files ?? []).every((f: any) => f.collected) && (
               <div className="mt-2 text-xs text-amber-600 font-medium">
-                Merge to main!
+                Checkout to main!
               </div>
             )}
           </div>
@@ -171,11 +177,12 @@ export default function GamePage() {
               <HelpCircle size={16} className="mx-auto" />
             </button>
             <button
-              onClick={handleStartGame}
-              className="flex-1 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md border text-xs"
-              title="New Game"
+              onClick={() => executeCommandString('undo')}
+              disabled={!gameState || (gameState.undoStack ?? []).length === 0}
+              className="flex-1 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-md border text-xs disabled:opacity-30 disabled:cursor-not-allowed"
+              title="Undo"
             >
-              <RefreshCw size={16} className="mx-auto" />
+              <Undo2 size={16} className="mx-auto" />
             </button>
           </div>
         </div>
@@ -207,6 +214,7 @@ export default function GamePage() {
             commands={gameState?.commandHistory ?? []}
             output={output}
             className="h-32 md:h-40"
+            username={username}
           />
           <CommandInput
             onSubmit={handleCommand}
@@ -229,10 +237,10 @@ export default function GamePage() {
         commandsUsed={gameState?.commandsUsed || 0}
         parScore={gameState?.parScore || 0}
         date={puzzle?.date}
-        onSetUsername={() => {
+        onSetUsername={!username ? () => {
           setShowEndModal(false);
           setShowNameModal(true);
-        }}
+        } : undefined}
       />
       
       <SetNameModal

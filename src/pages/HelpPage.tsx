@@ -10,10 +10,12 @@ import {
   Trophy,
   HelpCircle,
   Sun,
-  Moon
+  Moon,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useDarkMode } from '@/layouts/MainLayout';
+import { useAuth } from '@/hooks/useAuth';
 
 interface HelpSection {
   id: string;
@@ -64,6 +66,11 @@ const HELP_SECTIONS: HelpSection[] = [
           command="git checkout <target>"
           description="Switch to a different branch or commit. Use branch names or commit hashes (first 4+ characters)."
           example="git checkout feature"
+        />
+        <CommandHelp
+          command="git checkout -b <name>"
+          description="Create a new branch and switch to it in one command. Combines 'git branch' and 'git checkout'."
+          example="git checkout -b feature"
         />
         <CommandHelp
           command="git merge <branch>"
@@ -144,6 +151,38 @@ const HELP_SECTIONS: HelpSection[] = [
 export default function HelpPage() {
   const [activeSection, setActiveSection] = useState<string>('overview');
   const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const { username, setUsername, isLoading: isAuthLoading } = useAuth();
+  const [newUsername, setNewUsername] = useState('');
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [usernameSuccess, setUsernameSuccess] = useState(false);
+
+  const handleUsernameChange = async () => {
+    if (!newUsername.trim()) {
+      setUsernameError('Username cannot be empty');
+      return;
+    }
+    setUsernameError(null);
+    setUsernameSuccess(false);
+    
+    const success = await setUsername(newUsername.trim());
+    if (success) {
+      setUsernameSuccess(true);
+      setNewUsername('');
+    } else {
+      setUsernameError('Failed to update username');
+    }
+  };
+
+  // Add Settings section dynamically
+  const allSections = [
+    ...HELP_SECTIONS,
+    {
+      id: 'settings',
+      title: 'Settings',
+      icon: <User size={20} />,
+      content: null, // Will be handled specially
+    },
+  ];
 
   return (
     <div>
@@ -167,7 +206,7 @@ export default function HelpPage() {
         {/* Navigation */}
         <div className="md:w-48 flex-shrink-0">
           <nav className="space-y-1">
-            {HELP_SECTIONS.map((section) => (
+            {allSections.map((section) => (
               <button
                 key={section.id}
                 onClick={() => setActiveSection(section.id)}
@@ -196,7 +235,7 @@ export default function HelpPage() {
             ? 'bg-gray-800 border-gray-700'
             : 'bg-white border-gray-200'
         )}>
-          {HELP_SECTIONS.map((section) => (
+          {allSections.map((section) => (
             <div
               key={section.id}
               className={cn(
@@ -212,6 +251,42 @@ export default function HelpPage() {
                   <WinningContent isDarkMode={isDarkMode} onNavigateToCollecting={() => setActiveSection('collecting')} />
                 ) : section.id === 'collecting' ? (
                   <CollectingFilesContent isDarkMode={isDarkMode} />
+                ) : section.id === 'settings' ? (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="mb-2">Current username: <strong>{username || 'Not set'}</strong></p>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium">Change Username</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newUsername}
+                          onChange={(e) => setNewUsername(e.target.value)}
+                          placeholder="Enter new username"
+                          className={cn(
+                            'flex-1 px-3 py-2 rounded-lg border text-sm',
+                            isDarkMode
+                              ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                              : 'bg-white border-gray-300'
+                          )}
+                        />
+                        <button
+                          onClick={handleUsernameChange}
+                          disabled={isAuthLoading}
+                          className="px-4 py-2 bg-black text-white rounded-lg font-medium hover:bg-gray-800 disabled:opacity-50 transition-colors"
+                        >
+                          {isAuthLoading ? 'Saving...' : 'Save'}
+                        </button>
+                      </div>
+                      {usernameError && (
+                        <p className="text-red-500 text-sm">{usernameError}</p>
+                      )}
+                      {usernameSuccess && (
+                        <p className="text-green-500 text-sm">Username updated successfully!</p>
+                      )}
+                    </div>
+                  </div>
                 ) : (
                   section.content
                 )}
@@ -244,6 +319,10 @@ export default function HelpPage() {
           <div className="flex items-center gap-2">
             <GitBranch size={14} className="text-gray-400" />
             <span>git checkout &lt;ref&gt;</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <GitBranch size={14} className="text-gray-400" />
+            <span>git checkout -b &lt;name&gt;</span>
           </div>
           <div className="flex items-center gap-2">
             <GitMerge size={14} className="text-gray-400" />

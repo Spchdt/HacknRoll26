@@ -5,12 +5,14 @@ interface CommandHistoryProps {
   commands: string[];
   output: string[];
   className?: string;
+  username?: string | null;
 }
 
 export default function CommandHistory({
   commands,
   output,
   className,
+  username,
 }: CommandHistoryProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -31,10 +33,9 @@ export default function CommandHistory({
       )}
     >
       {output.length === 0 && commands.length === 0 ? (
-        <div className='text-gray-500'>
-          <p>Welcome to Gitty!</p>
-          <p className="mt-1">Type git commands to play. Try:</p>
-          <p className='mt-1 text-green-400'>$ git commit -m "first"</p>
+        <div className='text-green-400'>
+          <p>{username ? `Welcome to Gitty, ${username}!` : 'Welcome to Gitty!'}</p>
+          <p className="mt-1">Type "git init" to start the daily puzzle.</p>
         </div>
       ) : (
         <div className="space-y-1">

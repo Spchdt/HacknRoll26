@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
-import type { 
-  ApiGameState, 
-  Puzzle, 
-  Command, 
+import type {
+  ApiGameState,
+  Puzzle,
+  Command,
   GameRewards,
   CommandResponse,
   StartGameResponse,
@@ -106,13 +106,13 @@ interface UseApiGameReturn {
   error: string | null;
   isCompleted: boolean;
   output: string[];
-  
+
   // Actions
   startGame: (gameId?: string) => Promise<void>;
   executeCommand: (command: Command) => Promise<GameRewards | null>;
   executeCommandString: (commandString: string) => Promise<GameRewards | null>;
   resetGame: () => void;
-  
+
   // Game end
   rewards: GameRewards | null;
   gameReward: GameRewards | null; // Alias for rewards
@@ -133,11 +133,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
   const [error, setError] = useState<string | null>(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [rewards, setRewards] = useState<GameRewards | null>(null);
-  const [output, setOutput] = useState<string[]>([
-    'Welcome to Gitty!',
-    'Type "git init" to start the daily puzzle.',
-    '',
-  ]);
+  const [output, setOutput] = useState<string[]>([]);
 
   /**
    * Start a new game session
@@ -148,12 +144,12 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
     setError(null);
     setGameId(id);
     setRewards(null);
-    
+
     setOutput(prev => [...prev, `$ git init`, `Initializing game session...`]);
-    
+
     try {
       const response: StartGameResponse = await api.startGame(id);
-      
+
       if (response.success && response.gameState && response.puzzle) {
         // Transform API response to frontend format
         const { graph, files } = transformApiGameState(response.gameState, response.puzzle);
@@ -163,14 +159,14 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
           files,
           commandsUsed: response.gameState.commandHistory?.length || 0,
           parScore: response.puzzle.parScore,
-          status: (response.gameState as any).status === 'in_progress' ? 'playing' : 
-                  (response.gameState as any).status === 'completed' ? 'won' : 'playing',
+          status: (response.gameState as any).status === 'in_progress' ? 'playing' :
+            (response.gameState as any).status === 'completed' ? 'won' : 'playing',
         };
-        
+
         setGameState(transformedState);
         setPuzzle(response.puzzle);
         setIsCompleted(response.isCompleted ?? false);
-        
+
         setOutput(prev => [
           ...prev,
           `Initialized git repository`,
@@ -181,7 +177,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
           `Difficulty: Level ${response.puzzle!.difficultyLevel || response.puzzle!.difficulty}`,
           '',
         ]);
-        
+
         // If already completed, set rewards
         if (response.isCompleted && response.rewards) {
           setRewards(response.rewards);
@@ -209,11 +205,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
     setIsCompleted(false);
     setRewards(null);
     setError(null);
-    setOutput([
-      'Welcome to Gitty!',
-      'Type "git init" to start the daily puzzle.',
-      '',
-    ]);
+    setOutput([]);
   }, []);
 
   /**
@@ -228,10 +220,10 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const response: CommandResponse = await api.sendCommand(gameId, command);
-      
+
       if (response.success && response.gameState) {
         // Transform API response to frontend format
         const { graph, files } = transformApiGameState(response.gameState, puzzle);
@@ -241,13 +233,13 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
           files,
           commandsUsed: response.gameState.commandHistory?.length || 0,
           parScore: puzzle.parScore,
-          status: (response.gameState as any).status === 'in_progress' ? 'playing' : 
-                  (response.gameState as any).status === 'completed' ? 'won' : 'playing',
+          status: (response.gameState as any).status === 'in_progress' ? 'playing' :
+            (response.gameState as any).status === 'completed' ? 'won' : 'playing',
         };
-        
+
         setGameState(transformedState);
         setIsCompleted(response.isCompleted ?? false);
-        
+
         // Check for completion
         if (response.isCompleted && response.rewards) {
           setRewards(response.rewards);
@@ -256,7 +248,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       } else {
         throw new Error(response.error || 'Command failed');
       }
-      
+
       return null;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Command failed';
@@ -273,13 +265,13 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
    */
   const executeCommandString = useCallback(async (commandString: string): Promise<GameRewards | null> => {
     const trimmed = commandString.trim().toLowerCase();
-    
+
     // Handle git init specially - starts the game
     if (trimmed === 'git init') {
       await startGame(gameId);
       return null;
     }
-    
+
     // Check if game is started
     if (!gameState) {
       setOutput(prev => [
@@ -290,7 +282,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       ]);
       return null;
     }
-    
+
     // Parse the command
     const command = parseCommandString(commandString);
     if (!command) {
@@ -302,12 +294,12 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
       ]);
       return null;
     }
-    
+
     setOutput(prev => [...prev, `$ ${commandString}`]);
-    
+
     try {
       const result = await executeCommand(command);
-      
+
       // Build success message based on command type
       let successMsg = '';
       switch (command.type) {
@@ -330,9 +322,9 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
           successMsg = `Undid last command`;
           break;
       }
-      
+
       setOutput(prev => [...prev, successMsg, '']);
-      
+
       // If completed, show reward
       if (result) {
         setOutput(prev => [
@@ -344,7 +336,7 @@ export function useApiGame(initialGameId: string = 'daily'): UseApiGameReturn {
           '',
         ]);
       }
-      
+
       return result;
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Command failed';
@@ -403,13 +395,13 @@ export function createUndoCommand(): Command {
  * @param commandString - e.g., "git commit -m 'message'" or "git checkout main"
  */
 export function parseCommandString(commandString: string): Command | null {
-  const trimmed = commandString.trim().toLowerCase();
-  
-  // Remove "git " prefix if present
-  const withoutGit = trimmed.startsWith('git ') ? trimmed.slice(4) : trimmed;
+  const trimmed = commandString.trim();
+
+  // Remove "git " prefix if present (case-insensitive check)
+  const withoutGit = trimmed.toLowerCase().startsWith('git ') ? trimmed.slice(4) : trimmed;
   const parts = withoutGit.split(/\s+/);
-  const cmd = parts[0];
-  
+  const cmd = parts[0].toLowerCase(); // Only lowercase the command name
+
   switch (cmd) {
     case 'commit': {
       // Extract message from -m "message" or -m 'message'
@@ -417,38 +409,38 @@ export function parseCommandString(commandString: string): Command | null {
       const message = messageMatch ? messageMatch[1] : 'Commit';
       return createCommitCommand(message);
     }
-    
+
     case 'branch': {
-      const name = parts[1];
+      const name = parts[1]; // Keep original case
       if (!name) return null;
       return createBranchCommand(name);
     }
-    
+
     case 'checkout':
     case 'co': {
-      const target = parts[1];
+      const target = parts[1]; // Keep original case for commit hashes
       if (!target) return null;
       return createCheckoutCommand(target);
     }
-    
+
     case 'merge':
     case 'mg': {
-      const branch = parts[1];
+      const branch = parts[1]; // Keep original case
       if (!branch) return null;
       return createMergeCommand(branch);
     }
-    
+
     case 'rebase':
     case 'rb': {
-      const onto = parts[1];
+      const onto = parts[1]; // Keep original case
       if (!onto) return null;
       return createRebaseCommand(onto);
     }
-    
+
     case 'undo': {
       return createUndoCommand();
     }
-    
+
     default:
       return null;
   }
