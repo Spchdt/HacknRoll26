@@ -191,6 +191,6 @@ Contributions are welcome! Here's how you can help:
 - Game mechanics inspired by Git learning principles
 - UI powered by Tailwind CSS and Lucide icons
 - Hosted and deployed on Netlify
-- 
+
 
 **Happy learning! Made with ❤️ by Kopibara C Peng**
