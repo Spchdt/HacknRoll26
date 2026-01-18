@@ -1,7 +1,15 @@
-# Gitty - Git Learning Game
-[**Play Gitty now!**](https://git1y.netlify.app/)
+<p align="left">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/logo.svg">
+    <img src="public/logo.svg" alt="Wharffle logo" width="280">
+  </picture>
+</p>
 
+
+### Master Git. Your daily commit.
 A fun, interactive puzzle game that teaches git commands through hands-on gameplay. Master git concepts by solving daily puzzles where you collect files scattered across branches and merge them to main.
+
+[**Play Gitty now!**](https://git1y.netlify.app/)
 
 ![Gitty Game](https://img.shields.io/badge/game-gitty-brightgreen)
 ![React](https://img.shields.io/badge/react-18-blue)
