@@ -34,11 +34,7 @@ export default function CommandHistory({
     >
       {output.length === 0 && commands.length === 0 ? (
         <div className='text-green-400'>
-          <div className="flex items-center gap-2 flex-wrap">
-            <span>Welcome to</span>
-            <img src="/logo.svg" alt="Gitty" className="h-8 invert" />
-            <span>{username ? `, ${username}!` : '!'}</span>
-          </div>
+          <p>{username ? `Welcome to Gitty, ${username}!` : 'Welcome to Gitty!'}</p>
           <p className="mt-1">Type "git init" to start the daily puzzle.</p>
         </div>
       ) : (
