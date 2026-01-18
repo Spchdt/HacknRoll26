@@ -5,26 +5,23 @@ import { cn } from '@/lib/utils';
 import { useDarkMode } from '@/layouts/MainLayout';
 import { api } from '@/lib/api';
 
-interface FileTarget {
-  branch: string;
-  depth: number;
-  fileName: string;
-  collected: boolean;
-}
-
-interface Constraints {
-  maxCommits: number;
-  maxCheckouts: number;
-  maxBranches: number;
-  allowedBranches: string[];
-}
-
-interface ArchivedGame {
+// Using any type for API response to avoid type conflicts
+interface ArchiveGameData {
   id: string;
   date: string;
   difficultyLevel: number;
-  fileTargets: FileTarget[];
-  constraints: Constraints;
+  fileTargets: Array<{
+    branch: string;
+    depth: number;
+    fileName: string;
+    collected: boolean;
+  }>;
+  constraints: {
+    maxCommits: number;
+    maxCheckouts: number;
+    maxBranches: number;
+    allowedBranches: string[];
+  };
   parScore: number;
   createdAt: number;
 }
@@ -32,7 +29,7 @@ interface ArchivedGame {
 export default function ArchivePage() {
   const navigate = useNavigate();
   const { isDarkMode } = useDarkMode();
-  const [games, setGames] = useState<ArchivedGame[]>([]);
+  const [games, setGames] = useState<ArchiveGameData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<number | 'all'>('all');
@@ -42,7 +39,7 @@ export default function ArchivePage() {
     setError(null);
     try {
       const response = await api.getArchive();
-      setGames(response.data || []);
+      setGames((response.data || []) as unknown as ArchiveGameData[]);
     } catch (err) {
       console.error('Failed to load archive:', err);
       setError(err instanceof Error ? err.message : 'Failed to load archive');
